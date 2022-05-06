@@ -56,15 +56,23 @@ const existInAtLeastTen = async (filesCfg: FilesConfig) => {
     return existInAllFiles(filesCfg, 10)
 }
 
-const init = (): void => {
+const init = async () => {
     const filesCfg: FilesConfig = new FilesConfig();
-    getFilesLength(filesCfg.path)
-    .then((count: number) => {
-        console.log(`Files count: ${count}`);
-        uniqueValues(filesCfg, count).then((count: number) => console.log(`Unique values: ${count}`));
-        existInAllFiles(filesCfg, count).then((count: number) => console.log(`Exist in all files: ${count}`));
-        existInAtLeastTen(filesCfg).then((count: number) => console.log(`Exist in at least 10 files: ${count}`));
-    });
+    const length = await getFilesLength(filesCfg.path)
+
+    console.log(`Files count: ${length}`);
+
+    console.log(await uniqueValues(filesCfg, length));
+    console.log(await existInAllFiles(filesCfg, length));
+    console.log(await existInAtLeastTen(filesCfg));
 }
 
 init();
+
+// getFilesLength(filesCfg.path)
+    // .then((count: number) => {
+    //     console.log(`Files count: ${count}`);
+    //     uniqueValues(filesCfg, count).then((count: number) => console.log(`Unique values: ${count}`));
+    //     existInAllFiles(filesCfg, count).then((count: number) => console.log(`Exist in all files: ${count}`));
+    //     existInAtLeastTen(filesCfg).then((count: number) => console.log(`Exist in at least 10 files: ${count}`));
+    // });
