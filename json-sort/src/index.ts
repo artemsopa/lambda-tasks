@@ -27,11 +27,27 @@ const getAllDone = (urls: string[]) => {
     urls.forEach(async (url: string) => {
         try {
             const reponse = await axios.get(url);
-            console.log(reponse.data);
+            const prop = getProp(reponse.data);
+            console.log(prop);
         } catch (e) {
             console.error(e);
         }
     })
+}
+
+const getProp = (o: any): any => {
+    if("isDone" in o){
+        return o.isDone;
+    }
+    else {
+        for(var prop in o) {
+            if(typeof(o[prop]) === 'object') {
+                if("isDone" in o[prop]){
+                    return o[prop].isDone;
+                }
+            }
+        }
+    }
 }
 
 getAllDone(urls);
