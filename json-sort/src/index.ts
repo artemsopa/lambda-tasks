@@ -28,14 +28,14 @@ const getAllDone = (urls: string[]) => {
         try {
             const reponse = await axios.get(url);
             const prop = getProp(reponse.data);
-            console.log(prop);
+            console.log(url +": isDone - " + prop)
         } catch (e) {
             console.error(e);
         }
     })
 }
 
-const getProp = (o: any): any => {
+const getProp = (o: any) => {
     if("isDone" in o){
         return o.isDone;
     }
