@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { JwtManager } from "../../pkg/auth/token";
 import { PasswordHasher } from "../../pkg/hasher/password";
 import ApiError from "../exceptions/api-error";
@@ -51,7 +52,7 @@ class AuthService implements Auth {
             throw ApiError.badRequest("refresh token expired");
         }
         const tokens: Tokens = this.authManager.newTokens(lastSession.userId.toString());
-        await this.sessionsRepo.setSession(tokens.refreshToken.token, tokens.refreshToken.expiresAt, lastSession.userId);
+        await this.sessionsRepo.setSession(tokens.refreshToken.token, tokens.refreshToken.expiresAt, new ObjectId(lastSession.userId));
         return tokens;
     }
 }
