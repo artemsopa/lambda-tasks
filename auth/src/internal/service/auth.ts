@@ -1,5 +1,6 @@
 import { JwtManager } from "../../pkg/auth/token";
 import { PasswordHasher } from "../../pkg/hasher/password";
+import ApiError from "../exceptions/api-error";
 import { Users } from "../repository/repository";
 import UsersRepo from "../repository/users";
 import { Auth } from "./service";
@@ -16,16 +17,12 @@ class AuthService implements Auth {
     }
 
     async signUp(email: string, password: string): Promise<void> {
-        try {
-            const user = await this.usersRepo.getByEmail(email);
-            if (user) {
-                throw new Error("user already exists");
-            }
-            const hashPassword = await this.hasher.hash(password);
-            await this.usersRepo.create(email, hashPassword);
-        } catch (error) {
-            console.error(error);
+        const user = await this.usersRepo.getByEmail(email);
+        if (user) {
+            throw ApiError.badRequest("user already exists");
         }
+        const hashPassword = await this.hasher.hash(password);
+        await this.usersRepo.create(email, hashPassword);
     }
 
     // async login(email: string, password: string): Promise<Object | undefined> {

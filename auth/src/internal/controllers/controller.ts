@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import ApiError from "../exceptions/api-error";
 import { Auth } from "../service/service";
 
 class Controller {
@@ -11,7 +12,7 @@ class Controller {
         try {
             const { email, password } = req.body;
             if(!email || !password) {
-                throw new Error("not valid body")
+                throw ApiError.badRequest("not valid body")
             }
             await this.authService.signUp(email, password);
             return res.status(201).json({
@@ -26,7 +27,7 @@ class Controller {
         try {
             
         } catch (error) {
-            
+            next(error);
         }
     }
 
@@ -34,7 +35,7 @@ class Controller {
         try {
             
         } catch (error) {
-            
+            next(error);
         }
     }
 
@@ -42,7 +43,7 @@ class Controller {
         try {
             res.json(["123", "123", "123"])
         } catch (error) {
-            
+            next(error);
         }
     }
 }
