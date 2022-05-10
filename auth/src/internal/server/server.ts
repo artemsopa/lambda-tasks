@@ -13,6 +13,7 @@ async function newServer(port: string, controller: Controller) {
     app.use(cors());
     app.use(handler.initRoutes());
     app.use(errorMiddleware);
+    //app.use("/refresh", authMiddleware);
 
     app.listen(port, () => {
         console.log(`Server is running at https://localhost:${port}`);

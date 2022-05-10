@@ -7,7 +7,7 @@ import AuthService from "./auth";
 export interface Auth {
     signUp(email: string, password: string): Promise<void>;
     login(email: string, password: string): Promise<Tokens>;
-    // refresh(token: string): Promise<Object | undefined>;
+    refresh(token: string): Promise<Tokens>;
 }
 
 export class Deps {

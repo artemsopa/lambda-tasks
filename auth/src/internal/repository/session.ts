@@ -1,4 +1,5 @@
 import { Db, ObjectId } from "mongodb";
+import { SessionRefresh } from "../models/models";
 import { Sessions } from "./repository";
 
 class SessionRepo implements Sessions {
@@ -8,8 +9,8 @@ class SessionRepo implements Sessions {
         this.db = db;
     }
 
-    async getRefreshToken(token: string): Promise<Object | undefined> {
-        return (await this.db.collection("sessions").findOne({ token }) as Object);
+    async getLastSession(token: string): Promise<SessionRefresh | undefined> {
+        return await this.db.collection("sessions").findOne({ token }) as SessionRefresh;
     }
 
     async setSession(token: string, expiresAt: Date, userId: ObjectId): Promise<void> {

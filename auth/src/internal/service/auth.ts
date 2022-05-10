@@ -1,7 +1,7 @@
 import { JwtManager } from "../../pkg/auth/token";
 import { PasswordHasher } from "../../pkg/hasher/password";
 import ApiError from "../exceptions/api-error";
-import { Tokens } from "../models/models";
+import { Tokens, User, UserPlaceholder } from "../models/models";
 import { Sessions, Users } from "../repository/repository";
 import UsersRepo from "../repository/users";
 import { Auth } from "./service";
@@ -30,11 +30,11 @@ class AuthService implements Auth {
 
     async login(email: string, password: string): Promise<Tokens> {
         const user = await this.usersRepo.getByEmail(email);
-        if(!user) {
+        if (!user) {
             throw ApiError.badRequest("incorrect email");
         }
         const isPassEquals = await this.hasher.compare(password, user.password);
-        if(!isPassEquals) {
+        if (!isPassEquals) {
             throw ApiError.badRequest("incorrect password");
         }
         const tokens: Tokens = this.authManager.newTokens(user._id.toString());
@@ -42,13 +42,18 @@ class AuthService implements Auth {
         return tokens;
     }
 
-    // async refresh(token: string): Promise<Object | undefined> {
-    //     try {
-
-    //     } catch (error) {
-
-    //     }
-    // }
+    async refresh(token: string): Promise<Tokens> {
+        const lastSession = await this.sessionsRepo.getLastSession(token)
+        if(!lastSession) {
+            throw ApiError.badRequest("invaild refresh token");
+        }
+        if(lastSession.expiresAt < new Date()) {
+            throw ApiError.badRequest("refresh token expired");
+        }
+        const tokens: Tokens = this.authManager.newTokens(lastSession.userId.toString());
+        await this.sessionsRepo.setSession(tokens.refreshToken.token, tokens.refreshToken.expiresAt, lastSession.userId);
+        return tokens;
+    }
 }
 
 export default AuthService;

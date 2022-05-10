@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import { ObjectId } from "mongodb";
 import ApiError from "../exceptions/api-error";
-import { Tokens } from "../models/models";
+import { TokenRequest, Tokens } from "../models/models";
 import { Auth } from "../service/service";
 
 class Controller {
@@ -38,9 +39,14 @@ class Controller {
         }
     }
 
-    async refresh(req: Request, res: Response, next: NextFunction) {
+    async refresh(req: TokenRequest, res: Response, next: NextFunction) {
         try {
-            
+            const token = req.token;
+            if(!token) {
+                return next(ApiError.unauthorizedError());
+            }
+            const tokens = await this.authService.refresh(token)
+            return res.status(200).json(tokens)
         } catch (error) {
             next(error);
         }

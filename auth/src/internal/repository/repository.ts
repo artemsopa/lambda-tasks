@@ -1,5 +1,5 @@
 import { Db, ObjectId } from "mongodb";
-import { User } from "../models/models";
+import { SessionRefresh, User } from "../models/models";
 import SessionRepo from "./session";
 import UsersRepo from "./users";
 
@@ -12,7 +12,7 @@ export interface Users {
 
 export interface Sessions {
     db: Db;
-    getRefreshToken(token: string): Promise<Object | undefined>;
+    getLastSession(token: string): Promise<SessionRefresh | undefined>;
     setSession(token: string, expiresAt: Date, userId: ObjectId): Promise<void>;
 }
 

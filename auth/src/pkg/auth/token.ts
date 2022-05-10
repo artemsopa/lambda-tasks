@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken"
-import { Token, Tokens } from "../../internal/models/models";
+import { ObjectId } from "mongodb";
+import { JwtPlaceholder, Token, Tokens, User, UserPlaceholder } from "../../internal/models/models";
 
 export interface JwtManager {
-    newTokens(payload: string): Tokens;
-    parse(): void;
+    newTokens(userId: string): Tokens;
+    verifyAccessToken(token: string): ObjectId | null;
 }
 
 export class AuthManager implements JwtManager {
@@ -22,16 +23,23 @@ export class AuthManager implements JwtManager {
         this.refreshTTL = refreshTTL;
     }
 
-    newTokens(payload: string): Tokens {
-        const accessToken = jwt.sign({ payload }, this.signingKeyAccess, { expiresIn: this.accessTTL })
-        const refreshToken = jwt.sign({ payload }, this.signingKeyRefresh, { expiresIn: this.refreshTTL })
+    newTokens(userId: string): Tokens {
+        const accessToken = jwt.sign({ userId }, this.signingKeyAccess, { expiresIn: this.accessTTL })
+        const refreshToken = jwt.sign({ userId, expiresAt: parseTtl(this.refreshTTL) }, this.signingKeyRefresh, { expiresIn: this.refreshTTL })
         return new Tokens(
             new Token(accessToken, parseTtl(this.accessTTL)),
             new Token(refreshToken, parseTtl(this.refreshTTL))
         )
     }
 
-    async parse() { }
+    verifyAccessToken(token: string) {
+        try {
+            const jwtObj = jwt.verify(token, this.signingKeyRefresh) as JwtPlaceholder;
+            return new ObjectId(jwtObj.userId);
+        } catch (error) {
+            return null
+        }
+    }
 }
 
 function parseTtl(ttl: string): Date {
