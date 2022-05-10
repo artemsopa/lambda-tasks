@@ -18,7 +18,7 @@ export async function run() {
 
     const authManager = new AuthManager(
         configs.auth.jwt.signingKeyAccess, 
-        configs.auth.jwt.refreshTTL,
+        configs.auth.jwt.signingKeyRefresh,
         configs.auth.jwt.accessTTL,
         configs.auth.jwt.refreshTTL
     )
