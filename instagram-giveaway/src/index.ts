@@ -31,17 +31,23 @@ const readFile = (path: string) => {
     }))
 }
 
-const getDataArr = (folder: string, file: string) => readFile(path.resolve(__dirname, folder, file))
-    .then((data: string) => data.split(/\r?\n/))
-    .then((data: string[]) => { return data });
+const getDataArr = async (folder: string, file: string) => {
+    const data = await readFile(path.resolve(__dirname, folder, file))
+    return data.split(/\r?\n/);
+}
 
 const uniqueValues = async (filesCfg: FilesConfig, filesCount: number) => {
     let dataFiles: string[] = []
     for (let i = 0; i < filesCount; i++) {
         let temp = await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`);
-        dataFiles = dataFiles.concat([...new Set(temp)]);
+        dataFiles = dataFiles.concat(temp);
     }
-    return [...new Set(dataFiles)].length;
+    console.time('uniqueValues()');
+
+    const result = [...new Set(dataFiles)].length;
+    
+    console.timeEnd('uniqueValues()');
+    return result
 }
 
 const existInAllFiles = async (filesCfg: FilesConfig, filesCount: number) => {
@@ -57,22 +63,18 @@ const existInAtLeastTen = async (filesCfg: FilesConfig) => {
 }
 
 const init = async () => {
-    const filesCfg: FilesConfig = new FilesConfig();
-    const length = await getFilesLength(filesCfg.path)
+    try {
+        const filesCfg: FilesConfig = new FilesConfig();
+        const length = await getFilesLength(filesCfg.path)
 
-    console.log(`Files count: ${length}`);
+        console.log(`Files count: ${length}`);
 
-    console.log(await uniqueValues(filesCfg, length));
-    console.log(await existInAllFiles(filesCfg, length));
-    console.log(await existInAtLeastTen(filesCfg));
+        console.log(await uniqueValues(filesCfg, length));
+        console.log(await existInAllFiles(filesCfg, length));
+        console.log(await existInAtLeastTen(filesCfg));
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 init();
-
-// getFilesLength(filesCfg.path)
-    // .then((count: number) => {
-    //     console.log(`Files count: ${count}`);
-    //     uniqueValues(filesCfg, count).then((count: number) => console.log(`Unique values: ${count}`));
-    //     existInAllFiles(filesCfg, count).then((count: number) => console.log(`Exist in all files: ${count}`));
-    //     existInAtLeastTen(filesCfg).then((count: number) => console.log(`Exist in at least 10 files: ${count}`));
-    // });
