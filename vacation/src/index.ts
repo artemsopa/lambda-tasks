@@ -90,13 +90,23 @@ const printList = (users: User[]) => {
     return users;
 }
 
-const init = () => {
-    const cfg = new Configs();
-    readFileAsync(cfg.input)
-        .then((data: string) => JSON.parse(data) as WeekendDateJSON[])
-        .then((data: WeekendDateJSON[]) => getUniqueList(data))
-        .then((data: User[]) => printList(data))
-        .then((data: User[]) => writeFileAsync(cfg.output, JSON.stringify(data, null, "\t")))
+const init = async () => {
+    try {
+        const cfg = new Configs();
+        const dataJSON: string = await readFileAsync(cfg.input);
+        const data: WeekendDateJSON[] = JSON.parse(dataJSON);
+        const users: User[] = getUniqueList(data);
+        printList(users);
+        await writeFileAsync(cfg.output, JSON.stringify(data, null, "\t"))
+    } catch (error) {
+        console.log(error);
+    }
+
+    // readFileAsync(cfg.input)
+    //     .then((data: string) => JSON.parse(data) as WeekendDateJSON[])
+    //     .then((data: WeekendDateJSON[]) => getUniqueList(data))
+    //     .then((data: User[]) => printList(data))
+    //     .then((data: User[]) => writeFileAsync(cfg.output, JSON.stringify(data, null, "\t")))
 }
 
 init();
