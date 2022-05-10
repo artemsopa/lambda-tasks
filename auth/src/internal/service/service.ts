@@ -23,6 +23,6 @@ export class Deps {
 export class Services {
     auth: Auth;
     constructor(deps: Deps) {
-        this.auth = new AuthService(deps.repos.users, deps.hasher, deps.jwtManager)
+        this.auth = new AuthService(deps.repos.users, deps.hasher, deps.jwtManager);
     }
 }

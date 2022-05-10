@@ -12,6 +12,6 @@ export class BcryptHasher {
     }
 
     async hash(password: string): Promise<string> {
-        return await bcrypt.hash(password, this.salt);
+        return await bcrypt.hash(password, parseInt(this.salt));
     }
 }

@@ -14,8 +14,11 @@ class Controller {
                 throw new Error("not valid body")
             }
             await this.authService.signUp(email, password);
+            return res.status(201).json({
+                message: "successfully registrated"
+            })
         } catch (error) {
-            
+            next(error);
         }
     }
 

@@ -10,7 +10,7 @@ class Handler {
     }
 
     initRoutes() {
-        this.router.post("/sign_up", this.controller.signUp);
+        this.router.post("/sign_up", this.controller.signUp.bind(this.controller));
         this.router.post("/login", this.controller.login);
         this.router.post("/refresh", this.controller.refresh);
         this.router.get("/me", (req: Request, res: Response) => {
