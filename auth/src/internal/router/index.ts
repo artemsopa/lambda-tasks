@@ -11,8 +11,8 @@ class Handler {
 
     initRoutes() {
         this.router.post("/sign_up", this.controller.signUp.bind(this.controller));
-        this.router.post("/login", this.controller.login);
-        this.router.post("/refresh", this.controller.refresh);
+        this.router.post("/login", this.controller.login.bind(this.controller));
+        this.router.post("/refresh", this.controller.refresh.bind(this.controller));
         this.router.get("/me", (req: Request, res: Response) => {
             res.json({
                 message: "Well done!"

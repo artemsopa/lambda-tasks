@@ -1,4 +1,5 @@
 import { Db } from "mongodb";
+import { User } from "../models/models";
 import { Users } from "./repository";
 
 class UsersRepo implements Users {
@@ -15,15 +16,15 @@ class UsersRepo implements Users {
         });
     }
 
-    async getByEmail(email: string): Promise<Object | undefined> {
-        return (await this.db.collection("users").findOne({ email })) as Object;
+    async getByEmail(email: string): Promise<User | undefined> {
+        return (await this.db.collection("users").findOne({ email })) as User;
     }
 
-    async getByCredentials(email: string, password: string): Promise<Object | undefined> {
+    async getByCredentials(email: string, password: string): Promise<User | undefined> {
         return (await this.db.collection("users").findOne({
             email,
             password,
-        })) as Object;
+        })) as User;
     }
 }
 

@@ -12,19 +12,19 @@ class SessionRepo implements Sessions {
         return (await this.db.collection("sessions").findOne({ token }) as Object);
     }
 
-    async setSession(token: string, userId: ObjectId): Promise<void> {
-        const refreshToken = await this.db.collection("sessions").findOne({ token });
+    async setSession(token: string, expiresAt: Date, userId: ObjectId): Promise<void> {
+        const refreshToken = await this.db.collection("sessions").findOne({ userId });
         if (refreshToken) {
             await this.db.collection("sessions").findOneAndUpdate({ userId }, {
                 $set: {
-                    expiresAt: new Date(),
+                    expiresAt,
                     token
                 }
             });
         } else {
             await this.db.collection("sessions").insertOne({
                 token,
-                expiresAt: new Date(),
+                expiresAt,
                 userId,
             });
         }

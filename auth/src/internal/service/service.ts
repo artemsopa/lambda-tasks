@@ -1,11 +1,12 @@
 import { JwtManager } from "../../pkg/auth/token";
 import { BcryptHasher } from "../../pkg/hasher/password";
+import { Tokens } from "../models/models";
 import Repositories from "../repository/repository";
 import AuthService from "./auth";
 
 export interface Auth {
     signUp(email: string, password: string): Promise<void>;
-    // login(email: string, password: string): Promise<Object | undefined>;
+    login(email: string, password: string): Promise<Tokens>;
     // refresh(token: string): Promise<Object | undefined>;
 }
 
@@ -23,6 +24,6 @@ export class Deps {
 export class Services {
     auth: Auth;
     constructor(deps: Deps) {
-        this.auth = new AuthService(deps.repos.users, deps.hasher, deps.jwtManager);
+        this.auth = new AuthService(deps.repos.users, deps.repos.sessions, deps.hasher, deps.jwtManager);
     }
 }

@@ -1,18 +1,19 @@
 import { Db, ObjectId } from "mongodb";
+import { User } from "../models/models";
 import SessionRepo from "./session";
 import UsersRepo from "./users";
 
 export interface Users {
     db: Db;
     create(email: string, password: string): Promise<void>;
-    getByEmail(email: string): Promise<Object | undefined>;
-    getByCredentials(email: string, password: string): Promise<Object | undefined>;
+    getByEmail(email: string): Promise<User | undefined>;
+    getByCredentials(email: string, password: string): Promise<User | undefined>;
 }
 
 export interface Sessions {
     db: Db;
     getRefreshToken(token: string): Promise<Object | undefined>;
-    setSession(token: string, userId: ObjectId): Promise<void>;
+    setSession(token: string, expiresAt: Date, userId: ObjectId): Promise<void>;
 }
 
 class Repositories {

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/api-error";
+import { Tokens } from "../models/models";
 import { Auth } from "../service/service";
 
 class Controller {
@@ -25,7 +26,13 @@ class Controller {
 
     async login(req: Request, res: Response, next: NextFunction) {
         try {
-            
+            const email = req.query.email;
+            const password = req.query.password;
+            if(!email || !password) {
+                throw ApiError.badRequest("not valid query params")
+            }
+            const tokens: Tokens = await this.authService.login(email.toString(), password.toString());
+            return res.status(200).json(tokens)
         } catch (error) {
             next(error);
         }

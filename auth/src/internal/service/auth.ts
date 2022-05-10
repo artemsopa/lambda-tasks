@@ -1,17 +1,20 @@
 import { JwtManager } from "../../pkg/auth/token";
 import { PasswordHasher } from "../../pkg/hasher/password";
 import ApiError from "../exceptions/api-error";
-import { Users } from "../repository/repository";
+import { Tokens } from "../models/models";
+import { Sessions, Users } from "../repository/repository";
 import UsersRepo from "../repository/users";
 import { Auth } from "./service";
 
 class AuthService implements Auth {
     private usersRepo: Users;
+    private sessionsRepo: Sessions
     private hasher: PasswordHasher;
     private authManager: JwtManager;
 
-    constructor(usersRepo: UsersRepo, hasher: PasswordHasher, authManager: JwtManager) {
+    constructor(usersRepo: UsersRepo, sessionsRepo: Sessions, hasher: PasswordHasher, authManager: JwtManager) {
         this.usersRepo = usersRepo;
+        this.sessionsRepo = sessionsRepo;
         this.hasher = hasher;
         this.authManager = authManager;
     }
@@ -25,13 +28,19 @@ class AuthService implements Auth {
         await this.usersRepo.create(email, hashPassword);
     }
 
-    // async login(email: string, password: string): Promise<Object | undefined> {
-    //     try {
-
-    //     } catch (error) {
-
-    //     }
-    // }
+    async login(email: string, password: string): Promise<Tokens> {
+        const user = await this.usersRepo.getByEmail(email);
+        if(!user) {
+            throw ApiError.badRequest("incorrect email");
+        }
+        const isPassEquals = await this.hasher.compare(password, user.password);
+        if(!isPassEquals) {
+            throw ApiError.badRequest("incorrect password");
+        }
+        const tokens: Tokens = this.authManager.newTokens(user._id.toString());
+        await this.sessionsRepo.setSession(tokens.refreshToken.token, tokens.refreshToken.expiresAt, user._id);
+        return tokens;
+    }
 
     // async refresh(token: string): Promise<Object | undefined> {
     //     try {
