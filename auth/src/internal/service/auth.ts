@@ -1,7 +1,7 @@
 import { JwtManager } from "../../pkg/auth/token";
 import { PasswordHasher } from "../../pkg/hasher/password";
 import ApiError from "../exceptions/api-error";
-import { Tokens, User, UserPlaceholder } from "../models/models";
+import { Tokens } from "../models/models";
 import { Sessions, Users } from "../repository/repository";
 import UsersRepo from "../repository/users";
 import { Auth } from "./service";

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
 import { ObjectId } from "mongodb";
-import { JwtPlaceholder, Token, Tokens, User, UserPlaceholder } from "../../internal/models/models";
+import { JwtPlaceholder, Token, Tokens } from "../../internal/models/models";
 
 export interface JwtManager {
     newTokens(userId: string): Tokens;

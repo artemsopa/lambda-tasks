@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { ObjectId } from "mongodb";
 import ApiError from "../exceptions/api-error";
 import { TokenRequest, Tokens } from "../models/models";
 import { Auth } from "../service/service";

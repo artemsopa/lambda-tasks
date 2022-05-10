@@ -14,15 +14,6 @@ export interface SessionRefresh {
     userId: ObjectId;
 }
 
-export class UserPlaceholder {
-    _id: ObjectId;
-    email: string;
-    constructor(_id: ObjectId, email: string) {
-        this._id = _id;
-        this.email = email;
-    }
-}
-
 export class Token {
     token: string;
     expiresAt: Date;
