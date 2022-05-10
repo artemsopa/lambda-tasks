@@ -1,5 +1,5 @@
-import { JwtManager } from "../pkg/auth/token";
-import { PasswordHasher } from "../pkg/hasher/password";
+import { JwtManager } from "../../pkg/auth/token";
+import { PasswordHasher } from "../../pkg/hasher/password";
 import { Users } from "../repository/repository";
 import UsersRepo from "../repository/users";
 import { Auth } from "./service";

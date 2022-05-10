@@ -1,5 +1,5 @@
-import { JwtManager } from "../pkg/auth/token";
-import { BcryptHasher } from "../pkg/hasher/password";
+import { JwtManager } from "../../pkg/auth/token";
+import { BcryptHasher } from "../../pkg/hasher/password";
 import Repositories from "../repository/repository";
 import AuthService from "./auth";
 

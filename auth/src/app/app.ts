@@ -1,11 +1,11 @@
 import { Configs, initConfig } from "../configs/config";
-import Controller from "../controllers/controller";
+import Controller from "../internal/controllers/controller";
 import { AuthManager } from "../pkg/auth/token";
 import newDB from "../pkg/database/mongo";
 import { BcryptHasher } from "../pkg/hasher/password";
-import Repositories from "../repository/repository";
-import newServer from "../server/server";
-import { Deps, Services } from "../service/service";
+import Repositories from "../internal/repository/repository";
+import newServer from "../internal/server/server";
+import { Deps, Services } from "../internal/service/service";
 
 export async function run() {
     const configs: Configs = initConfig();
