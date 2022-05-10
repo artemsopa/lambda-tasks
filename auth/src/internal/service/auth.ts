@@ -39,7 +39,7 @@ class AuthService implements Auth {
             throw ApiError.badRequest("incorrect password");
         }
         const tokens: Tokens = this.authManager.newTokens(user._id.toString());
-        await this.sessionsRepo.setSession(tokens.refreshToken.token, tokens.refreshToken.expiresAt, new ObjectId(user._id));
+        await this.sessionsRepo.setSession(tokens.refreshToken.token, tokens.refreshToken.expiresAt, user._id);
         return tokens;
     }
 
