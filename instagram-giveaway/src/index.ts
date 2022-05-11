@@ -37,29 +37,25 @@ const getDataArr = async (folder: string, file: string) => {
 }
 
 const uniqueValues = async (filesCfg: FilesConfig, filesCount: number) => {
-    let dataFiles: string[] = []
+    let res: string[] = [];
     for (let i = 0; i < filesCount; i++) {
         let temp = await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`);
-        dataFiles = dataFiles.concat(temp);
+        res = res.concat([... new Set(temp)]);
     }
-    console.time('uniqueValues()');
-
-    const result = [...new Set(dataFiles)].length;
-    
-    console.timeEnd('uniqueValues()');
-    return result
+    return res.length;
 }
 
 const existInAllFiles = async (filesCfg: FilesConfig, filesCount: number) => {
-    let count: number = 0;
+    let res: string[] = [];
     for (let i = 0; i < filesCount; i++) {
-        count += (await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`)).length;
+        let temp = await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`);
+        res = res.concat([... new Set(temp)]);
     }
-    return count;
+    return [... new Set(res)].length;
 }
 
 const existInAtLeastTen = async (filesCfg: FilesConfig) => {
-    return existInAllFiles(filesCfg, 10)
+    return await existInAllFiles(filesCfg, 10);
 }
 
 const init = async () => {
@@ -67,11 +63,15 @@ const init = async () => {
         const filesCfg: FilesConfig = new FilesConfig();
         const length = await getFilesLength(filesCfg.path)
 
-        console.log(`Files count: ${length}`);
+        console.log(`Files count: ${length}\n`);
 
-        console.log(await uniqueValues(filesCfg, length));
-        console.log(await existInAllFiles(filesCfg, length));
-        console.log(await existInAtLeastTen(filesCfg));
+        console.time('Time');
+
+        console.log("Unique values: " + await uniqueValues(filesCfg, length));
+        console.log("Exist in all files: " + await existInAllFiles(filesCfg, length));
+        console.log("Exist in at least at 10: " + await existInAtLeastTen(filesCfg) + "\n");
+
+        console.timeEnd('Time');
     } catch (error) {
         console.log(error);
     }
