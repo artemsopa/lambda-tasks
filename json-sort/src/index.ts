@@ -23,31 +23,43 @@ const urls: string[] = [
     "https://jsonbase.com/lambdajson_type4/64"
 ]
 
-const getAllDone = (urls: string[]) => {
-    urls.forEach(async (url: string) => {
-        try {
-            const reponse = await axios.get(url);
-            const prop = getProp(reponse.data);
-            console.log(url +": isDone - " + prop)
-        } catch (e) {
-            console.error(e);
-        }
-    })
-}
-
-const getProp = (o: any) => {
-    if("isDone" in o){
+const getProp = (o: any): any => {
+    if ("isDone" in o) {
         return o.isDone;
     }
     else {
-        for(var prop in o) {
-            if(typeof(o[prop]) === 'object') {
-                if("isDone" in o[prop]){
-                    return o[prop].isDone;
-                }
+        for (let prop in o) {
+            if (o[prop] instanceof Object && !Array.isArray(o[prop])) {
+                return getProp(o[prop])
             }
         }
     }
 }
 
-getAllDone(urls);
+const tryRequest = async (url: string, tryNum: number, reqNum: number = 0) => {
+    if (reqNum < tryNum) {
+        try {
+            return await axios.get(url);
+        } catch (e) {
+            console.log(`ERROR! Trying request again... ${reqNum + 1}`);
+            await tryRequest(url, tryNum, ++reqNum);
+        }
+    }
+}
+
+const getAllDone = async (urls: string[], tryNum: number) => {
+    let countTrue = 0, countFalse = 0;
+    for (let i = 0; i < urls.length; i++) {
+        try {
+            const response = await tryRequest(urls[i], tryNum)
+            const prop = getProp(response!.data);
+            console.log(urls[i] + "\t: isDone - " + prop)
+            prop ? countTrue++ : countFalse++
+        } catch (e) {
+            console.log(`ERROR! Cannot get response: ${urls[i]}\n`);
+        }
+    }
+    console.log("True: " + countTrue + "\nFalse: " + countFalse);
+}
+
+getAllDone(urls, 3);
