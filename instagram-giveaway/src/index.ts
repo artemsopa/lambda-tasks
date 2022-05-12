@@ -36,40 +36,65 @@ const getDataArr = async (folder: string, file: string) => {
     return data.split(/\r?\n/);
 }
 
-const uniqueValues = async (filesCfg: FilesConfig, filesCount: number) => {
-    let res: string[] = [];
+const getAllDataArr = async (filesCfg: FilesConfig, filesCount: number) => {
+    let arr: string[][] = [];
     for (let i = 0; i < filesCount; i++) {
-        let temp = await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`);
-        res = res.concat([... new Set(temp)]);
+        arr.push(await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`));
     }
-    return res.length;
+    return arr;
 }
 
-const existInAllFiles = async (filesCfg: FilesConfig, filesCount: number) => {
-    let res: string[] = [];
-    for (let i = 0; i < filesCount; i++) {
-        let temp = await getDataArr(filesCfg.path, `${filesCfg.name}${i}${filesCfg.ext}`);
-        res = res.concat([... new Set(temp)]);
+const uniqueValues = async (arr: string[][]) => {
+    let result: string[] = [];
+    for (let i = 0; i < arr.length; i++) {
+        result = result.concat(arr[i]);
     }
-    return [... new Set(res)].length;
+    return [... new Set(result)].length;
 }
 
-const existInAtLeastTen = async (filesCfg: FilesConfig) => {
-    return await existInAllFiles(filesCfg, 10);
+const existInAllFiles = async (arr: string[][], length: number = arr.length) => {
+    let temp: string[][] = [];
+    for (let i = 0; i < length; i++) {
+        temp.push([... new Set(arr[i])]);
+    }
+
+    let result: string[] = [];
+    for (let i = 0; i < temp[0].length; i++) {
+        if (!result.includes(temp[0][i])) {
+            let count: number = 1;
+            for (let j = 1; j < length; j++) {
+                if (temp[j].includes(temp[0][i])) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (count === length) {
+                result.push(temp[0][i]);
+            }
+        }
+    }
+
+    return result.length;
+}
+
+const existInAtLeastTen = async (arr: string[][]) => {
+    return await existInAllFiles(arr, 10);
 }
 
 const init = async () => {
     try {
         const filesCfg: FilesConfig = new FilesConfig();
         const length = await getFilesLength(filesCfg.path)
+        const arr = await getAllDataArr(filesCfg, length)
 
         console.log(`Files count: ${length}\n`);
 
         console.time('Time');
 
-        console.log("Unique values: " + await uniqueValues(filesCfg, length));
-        console.log("Exist in all files: " + await existInAllFiles(filesCfg, length));
-        console.log("Exist in at least at 10: " + await existInAtLeastTen(filesCfg) + "\n");
+        console.log("Unique values: " + await uniqueValues(arr));
+        console.log("Exist in all files: " + await existInAllFiles(arr));
+        console.log("Exist in at least at 10: " + await existInAtLeastTen(arr) + "\n");
 
         console.timeEnd('Time');
     } catch (error) {
