@@ -44,7 +44,7 @@ const getAllDataArr = async (filesCfg: FilesConfig, filesCount: number) => {
     return arr;
 }
 
-const uniqueValues = async (arr: string[][]) => {
+const uniqueValues = (arr: string[][]) => {
     let result: string[] = [];
     for (let i = 0; i < arr.length; i++) {
         result = result.concat(arr[i]);
@@ -52,34 +52,51 @@ const uniqueValues = async (arr: string[][]) => {
     return [... new Set(result)].length;
 }
 
-const existInAllFiles = async (arr: string[][], length: number = arr.length) => {
-    let temp: string[][] = [];
-    for (let i = 0; i < length; i++) {
-        temp.push([... new Set(arr[i])]);
+// const existInAllFiles = async (arr: string[][]) => {
+//     let temp: string[][] = [];
+//     for (let i = 0; i < arr.length; i++) {
+//         temp.push([... new Set(arr[i])]);
+//     }
+
+//     let result: string[] = [];
+//     for (let i = 0; i < temp[0].length; i++) {
+//         let count = 1;
+//         for (let j = 1; j < temp.length; j++) {
+//             if (temp[j].includes(temp[0][i])) {
+//                 count++;
+//             } else {
+//                 break;
+//             }
+//         }
+//         if (count === arr.length) {
+//             result.push(temp[0][i]);
+//         }
+//     }
+
+//     return result.length;
+// }
+
+const existInAllFiles = (arr: string[][], count: number = arr.length) => {
+    let temp: string[] = [];
+    for (let i = 0; i < arr.length; i++) {
+        temp = temp.concat([... new Set(arr[i])]);
     }
 
-    let result: string[] = [];
-    for (let i = 0; i < temp[0].length; i++) {
-        if (!result.includes(temp[0][i])) {
-            let count: number = 1;
-            for (let j = 1; j < length; j++) {
-                if (temp[j].includes(temp[0][i])) {
-                    count++;
-                } else {
-                    break;
-                }
-            }
-            if (count === length) {
-                result.push(temp[0][i]);
-            }
+    const map = new Map();
+    for (let el of temp) {
+        let counter = map.get(el);
+        map.set(el, counter ? counter + 1 : 1);
+    }
+    const result: string[] = [];
+    for (let [el, counter] of map.entries())
+        if (counter >= count) {
+            result.push(el);
         }
-    }
-
     return result.length;
 }
 
-const existInAtLeastTen = async (arr: string[][]) => {
-    return await existInAllFiles(arr, 10);
+const existInAtLeast = async (arr: string[][]) => {
+    return existInAllFiles(arr, 10);
 }
 
 const init = async () => {
@@ -94,7 +111,7 @@ const init = async () => {
 
         console.log("Unique values: " + await uniqueValues(arr));
         console.log("Exist in all files: " + await existInAllFiles(arr));
-        console.log("Exist in at least at 10: " + await existInAtLeastTen(arr) + "\n");
+        console.log("Exist in at least at 10: " + await existInAtLeast(arr) + "\n");
 
         console.timeEnd('Time');
     } catch (error) {
@@ -103,3 +120,6 @@ const init = async () => {
 }
 
 init();
+
+function foo(arr: string[], copies: number) {
+}
