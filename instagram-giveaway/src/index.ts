@@ -52,41 +52,18 @@ const uniqueValues = (arr: string[][]) => {
     return [... new Set(result)].length;
 }
 
-// const existInAllFiles = async (arr: string[][]) => {
-//     let temp: string[][] = [];
-//     for (let i = 0; i < arr.length; i++) {
-//         temp.push([... new Set(arr[i])]);
-//     }
-
-//     let result: string[] = [];
-//     for (let i = 0; i < temp[0].length; i++) {
-//         let count = 1;
-//         for (let j = 1; j < temp.length; j++) {
-//             if (temp[j].includes(temp[0][i])) {
-//                 count++;
-//             } else {
-//                 break;
-//             }
-//         }
-//         if (count === arr.length) {
-//             result.push(temp[0][i]);
-//         }
-//     }
-
-//     return result.length;
-// }
-
 const existInAllFiles = (arr: string[][], count: number = arr.length) => {
-    let temp: string[] = [];
+    let strings: string[] = [];
     for (let i = 0; i < arr.length; i++) {
-        temp = temp.concat([... new Set(arr[i])]);
+        strings = strings.concat([... new Set(arr[i])]);
     }
 
     const map = new Map();
-    for (let el of temp) {
+    for (let el of strings) {
         let counter = map.get(el);
         map.set(el, counter ? counter + 1 : 1);
     }
+    
     const result: string[] = [];
     for (let [el, counter] of map.entries())
         if (counter >= count) {
@@ -95,7 +72,7 @@ const existInAllFiles = (arr: string[][], count: number = arr.length) => {
     return result.length;
 }
 
-const existInAtLeast = async (arr: string[][]) => {
+const existInAtLeast = (arr: string[][]) => {
     return existInAllFiles(arr, 10);
 }
 
@@ -109,9 +86,9 @@ const init = async () => {
 
         console.time('Time');
 
-        console.log("Unique values: " + await uniqueValues(arr));
-        console.log("Exist in all files: " + await existInAllFiles(arr));
-        console.log("Exist in at least at 10: " + await existInAtLeast(arr) + "\n");
+        console.log("Unique values: " + uniqueValues(arr));
+        console.log("Exist in all files: " + existInAllFiles(arr));
+        console.log("Exist in at least at 10: " + existInAtLeast(arr) + "\n");
 
         console.timeEnd('Time');
     } catch (error) {
@@ -120,6 +97,3 @@ const init = async () => {
 }
 
 init();
-
-function foo(arr: string[], copies: number) {
-}
