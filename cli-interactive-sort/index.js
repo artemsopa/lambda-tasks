@@ -18,22 +18,43 @@ function prompt(question, stdLine) {
   });
 }
 
+const filterNaN = (item) => {
+  return isNaN(item) ? true : false;
+};
+
+const filterNum = (item) => {
+  return Number(item) ? true : false;
+};
+
 const selectSorting = async (num, data, stdLine) => {
+  const arr = data.split(" ");
   switch (num) {
     case "1":
-      console.log(1, data);
+      console.log(arr.filter((item) => filterNaN(item)).sort());
       break;
     case "2":
-      console.log(2, data);
+      console.log(
+        arr
+          .filter((item) => filterNum(item))
+          .sort((a, b) => {
+            return a - b;
+          })
+      );
       break;
     case "3":
-      console.log(3, data);
+      console.log(
+        arr
+          .filter((item) => filterNum(item))
+          .sort((a, b) => {
+            return b - a;
+          })
+      );
       break;
     case "4":
-      console.log(4, data);
+      console.log([...new Set(arr.filter((item) => filterNaN(item)))]);
       break;
     case "5":
-      console.log(5, data);
+      console.log([...new Set(arr)]);
       break;
     default:
       const existing = await prompt(errorString, stdLine);
