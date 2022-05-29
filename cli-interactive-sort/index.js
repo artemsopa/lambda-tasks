@@ -3,7 +3,7 @@ const readline = require("readline");
 const getWordsString =
   "Hello. Enter 10 words or digits devidig them in spaces: ";
 const selectSortingString =
-  "How would you like to sort values:\n1. Words by name (from A to Z);\n2. Show digits from the smallest;\n3. Show digits from the biggest;\n4. Words by quantity of letters;\n5. Only unique words.\n\nSelect (1 - 5) and press ENTER: ";
+  "How would you like to sort values:\n1. Words by name (from A to Z);\n2. Show digits from the smallest;\n3. Show digits from the biggest;\n4. Words by quantity of letters;\n5. Only unique words.\n6. Only unique values.\n\nSelect (1 - 6) and press ENTER: ";
 const errorString = "ERROR! Try existing sorting number: ";
 const exitString = "Good bye! Come back again!";
 
@@ -30,7 +30,9 @@ const selectSorting = async (num, data, stdLine) => {
   const arr = data.split(" ");
   switch (num) {
     case "1":
-      console.log(arr.filter((item) => filterNaN(item)).sort());
+      console.log(
+        arr.filter((item) => filterNaN(item)).sort((a, b) => a.localeCompare(b))
+      );
       break;
     case "2":
       console.log(
@@ -51,9 +53,18 @@ const selectSorting = async (num, data, stdLine) => {
       );
       break;
     case "4":
-      console.log([...new Set(arr.filter((item) => filterNaN(item)))]);
+      console.log(
+        arr
+          .filter((item) => filterNaN(item))
+          .sort((a, b) => {
+            return a.length - b.length;
+          })
+      );
       break;
     case "5":
+      console.log([...new Set(arr.filter((item) => filterNaN(item)))]);
+      break;
+    case "6":
       console.log([...new Set(arr)]);
       break;
     default:
