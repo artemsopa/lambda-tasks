@@ -1,0 +1,13 @@
+{
+  "name": "asdadadas",
+  "gender": "male",
+  "age": 12
+}{
+  "name": "sdadsasda",
+  "gender": "male",
+  "age": 21
+}{
+  "name": "dsadsadsa",
+  "gender": "male",
+  "age": 21
+}
