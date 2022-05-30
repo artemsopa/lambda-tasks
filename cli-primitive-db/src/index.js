@@ -17,13 +17,17 @@ const readFileAsync = (file) => {
   );
 };
 
-const appendFileAsync = (file, data) => {
+const appendFileAsync = (file, name, gender, age) => {
   return new Promise((reject) =>
-    fs.appendFile(path.resolve(__dirname, file), data, (err) => {
-      if (err) {
-        return reject(err);
+    fs.appendFile(
+      path.resolve(__dirname, file),
+      `{\n\t"name": "${name}",\n\t"gender": "${gender}",\n\t"age": ${age}\n},`,
+      (err) => {
+        if (err) {
+          return reject(err);
+        }
       }
-    })
+    )
   );
 };
 
@@ -67,21 +71,37 @@ const infoQuestions = [
   },
 ];
 
+const searchQuestion = {
+  type: "confirm",
+  message: "Would you to search values in DB?",
+  name: "isSearch"
+};
+
+const selectQuestion = {
+  type: "input",
+  message: "Enter user's name you wanna find in DB:",
+  name: "name",
+};
+
 const createPerson = async () => {
   try {
     const input = await inquirer.prompt(nameQuestion);
     if (input.name === "") {
-      const data = await readFileAsync("data.txt");
-      console.log(data);
+      const confirm = await inquirer.prompt(searchQuestion);
+      if (confirm.isSearch) {
+        const str = await readFileAsync("data.txt");
+        const data = JSON.parse("[" + str.slice(0, -1) + "]");
+        console.log(data);
+        const select = await inquirer.prompt(selectQuestion);
+        const user = data.find(user => user.name === select.name);
+        if(user) {
+          console.log("User " + select.name + " was found.");
+          console.log(user);
+        } else console.log("User " + select.name + " not found.");
+      }
     } else {
       const info = await inquirer.prompt(infoQuestions);
-      const user = {
-        name: input.name,
-        gender: info.gender,
-        age: info.age,
-      };
-      console.log(user);
-      await appendFileAsync("data.txt", JSON.stringify(user, null, 2));
+      await appendFileAsync("data.txt", input.name, info.gender, info.age);
       await createPerson();
     }
   } catch (error) {
