@@ -33,17 +33,14 @@ const appendFileAsync = (file, name, gender, age) => {
 
 const nameQuestion = {
   type: "input",
-  message: "Enter the user's name. To cancel press ENTER:",
+  message: "Enter user's name. To cancel press ENTER:",
   name: "name",
-  validate: (input) => {
-    if (input === "") {
-      return true;
-    }
-    return input.length < 5 ? "ERROR! Enter the name longer 4 symbols!" : true;
-  },
-  filter: (input) => {
-    return input.length < 5 ? "" : input;
-  },
+  // validate: (input) => {
+  //   return input.length < 5 ? "ERROR! Enter the name longer 4 symbols!" : true;
+  // },
+  // filter: (input) => {
+  //   return input.length < 5 ? "" : input;
+  // },
 };
 
 const infoQuestions = [
@@ -83,30 +80,35 @@ const selectQuestion = {
   name: "name",
 };
 
-const createPerson = async () => {
+const createUser = async (name) => {
+  const info = await inquirer.prompt(infoQuestions);
+  await appendFileAsync("data.txt", name, info.gender, info.age);
+}
+
+const getUser = async () => {
+  const confirm = await inquirer.prompt(searchQuestion);
+  if (confirm.isSearch) {
+    const str = await readFileAsync("data.txt");
+    const data = JSON.parse("[" + str.slice(0, -1) + "]");
+    console.log(data);
+    const select = await inquirer.prompt(selectQuestion);
+    const user = data.find(user => user.name === select.name);
+    console.log("User", select.name, user ? `was found.\n${JSON.stringify(user)}` : "not found.");
+  }
+}
+
+const main = async () => {
   try {
     const input = await inquirer.prompt(nameQuestion);
     if (input.name === "") {
-      const confirm = await inquirer.prompt(searchQuestion);
-      if (confirm.isSearch) {
-        const str = await readFileAsync("data.txt");
-        const data = JSON.parse("[" + str.slice(0, -1) + "]");
-        console.log(data);
-        const select = await inquirer.prompt(selectQuestion);
-        const user = data.find(user => user.name === select.name);
-        if(user) {
-          console.log("User " + select.name + " was found.");
-          console.log(user);
-        } else console.log("User " + select.name + " not found.");
-      }
+      await getUser();
     } else {
-      const info = await inquirer.prompt(infoQuestions);
-      await appendFileAsync("data.txt", input.name, info.gender, info.age);
-      await createPerson();
+      await createUser(input.name);
+      await main();
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-createPerson();
+main();
