@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const token = '5576052672:AAEeaGEA2MaYoQJd_RE4mdhtg3ehjphLgc4';
 const chatId = 519188303;
-
+//@console_sender_bot
 const bot = new TelegramBot(token);
 
 program.version('1.0.0');
