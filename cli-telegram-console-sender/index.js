@@ -20,6 +20,6 @@ program
     .alias('p')
     .description('Send a photo to Telegram Bot, just drag and drop it console after p-flag')
     .argument('<path>')
-    .action(path => bot.sendPhoto(chatId, path).error(e => console.log(error)));
+    .action(path => bot.sendPhoto(chatId, path));
 
 program.parse(process.argv);
