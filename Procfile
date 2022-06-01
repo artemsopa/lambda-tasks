@@ -1,2 +1,1 @@
-bot: node index.js
-heroku ps:scale web=1
+web: node index.js
