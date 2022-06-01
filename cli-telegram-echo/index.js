@@ -1,9 +1,6 @@
 process.env.NTBA_FIX_319 = 1;
 
 const axios = require("axios");
-const path = require("path");
-const fs = require("fs");
-const crypto = require("crypto");
 const TelegramBot = require("node-telegram-bot-api");
 
 const token = "5584520652:AAHBBaFCWPQm6s5hBTAnN0y-uHl5vwDoqzA";
@@ -14,25 +11,13 @@ console.log(`Telegram bot successfully started...`);
 
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
-  const user = msg.chat.first_name
-    ? msg.chat?.last_name
-      ? msg.chat?.first_name + " " + msg.chat?.last_name
-      : msg.chat.first_name
-    : msg.chat.username;
+  const user = msg.chat.first_name ? msg.chat?.last_name ? msg.chat?.first_name + " " + msg.chat?.last_name : msg.chat.first_name : msg.chat.username;
   if (msg.text === "photo") {
     try {
       console.log(`Пользователь ${user} запросил картинку`);
 
       const buffer = await downloadImage();
-      await bot.sendPhoto(
-        chatId,
-        buffer,
-        {},
-        {
-          filename: "data",
-          contentType: "application/octet-stream",
-        }
-      );
+      await bot.sendPhoto(chatId, buffer, {}, { filename: "data", contentType: "application/octet-stream" });
     } catch (error) {
       console.log("ERROR! Cannot get picture!");
     }
