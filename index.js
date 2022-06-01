@@ -1,5 +1,4 @@
 process.env.NTBA_FIX_319 = 1;
-
 const axios = require("axios");
 const TelegramBot = require("node-telegram-bot-api");
 
