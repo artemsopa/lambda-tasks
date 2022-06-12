@@ -1,10 +1,12 @@
 const TelegramBot = require("node-telegram-bot-api");
-const config = require("./config");
 const helper = require("./helper");
 const texts = require("./texts");
 const getWeather = require("./weather");
+const getExchangeRate = require("./exchange");
 
-const bot = new TelegramBot(config.TOKEN, { polling: true });
+const TOKEN = "5513124365:AAEPTm8ZTa-TODQiAaK4Py4XOJeFNYJtQE0";
+
+const bot = new TelegramBot(TOKEN, { polling: true });
 
 helper.logStart();
 
@@ -22,7 +24,9 @@ bot.on("message", async (msg) => {
 
   switch (msg.text) {
     case texts.weatherBText:
-        bot.sendMessage(helper.getChatId(msg), await getWeather(), {parse_mode: 'Markdown'})
+      bot.sendMessage(helper.getChatId(msg), await getWeather(), {
+        parse_mode: "Markdown",
+      });
       break;
     case texts.exchangeBText:
       bot.sendMessage(helper.getChatId(msg), texts.currencyText, {
@@ -31,6 +35,20 @@ bot.on("message", async (msg) => {
           keyboard: [[texts.usdBText, texts.eurBText], [texts.backBText]],
         },
       });
+      break;
+    case texts.usdBText:
+      bot.sendMessage(
+        helper.getChatId(msg),
+        await getExchangeRate(texts.usdText, 0),
+        { parse_mode: "Markdown" }
+      );
+      break;
+    case texts.eurBText:
+      bot.sendMessage(
+        helper.getChatId(msg),
+        await getExchangeRate(texts.eurText, 1),
+        { parse_mode: "Markdown" }
+      );
       break;
     case texts.backBText:
       bot.sendMessage(helper.getChatId(msg), texts.chooseText, {

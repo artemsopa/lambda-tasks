@@ -38,9 +38,9 @@ const getDate = (date) => {
   );
 };
 
-const getCelcius = (stamp) => {
-  const temp = Math.round(stamp.main.temp - 273.15);
-  return temp < 0 ? "-" + temp : temp > 0 ? "+" + temp : temp;
+const getCelcius = (temp) => {
+  const t = Math.round(temp - 273.15);
+  return t < 0 ? "-" + t : t > 0 ? "+" + t : t;
 };
 
 const getTime = (date) => {
@@ -55,35 +55,28 @@ const getTime = (date) => {
   return hour + ":" + minute;
 };
 
-const getDay = (stamp, next) => {
+const getDay = (i, stamp, back) => {
   let date = new Date(stamp.dt_txt);
   let weather = "";
-  if (next && stamp.dt_txt.slice(0, 10) != next.dt_txt.slice(0, 10)) {
+  if (i == 0 || (back && stamp.dt_txt.slice(0, 10) != back.dt_txt.slice(0, 10))) {
     weather += "\n\n🗓 *" + getDate(date) + "*\n";
   }
   weather +=
-    " \n\t ⏱ " +
-    getTime(date) +
-    "\t *" +
-    getCelcius(stamp) +
-    "°C*;" +
-    " \n\t 🌡 Feels like: " +
-    getCelcius(stamp) +
-    "°C;" +
-    " \n\t 🪁 Description: *" +
-    stamp.weather[0].description +
-    "*.\n";
+    `\n\t ⏱ ${getTime(date)}\t${getCelcius(stamp.main.temp)}°C;\n\t 🌡 Feels like: ${getCelcius(stamp.main.feels_like)}°C;\n\t 🪁 Description: ${stamp.weather[0].description}.\n`;
   return weather;
 };
 
 const getWeather = async () => {
-  let weather = "";
-  const response = await axios.get(url);
-  weather += `🇺🇦 *Weather in Kharkiv:*\n\n`;
-  for (let i = 0; i < response.data.list.length; i++) {
-    weather += getDay(response.data.list[i], response.data.list[i + 1]);
+  try {
+    let weather = "🇺🇦 *Weather in Kharkiv:*\n";
+    const response = await axios.get(url);
+    for (let i = 0; i < response.data.list.length; i++) {
+      weather += getDay(i, response.data.list[i], response.data.list[i - 1]);
+    }
+    return weather; 
+  } catch (error) {
+    return "Cannot get weather..."
   }
-  return weather;
 };
 
 module.exports = getWeather;
