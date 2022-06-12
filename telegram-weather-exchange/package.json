@@ -216,6 +216,9 @@
   "scripts": {
     "start": "node ./src/index.js"
   },
+  "engines": {
+    "node": "16.14.2"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
