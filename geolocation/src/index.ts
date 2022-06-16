@@ -1,6 +1,6 @@
 import express, { Express, json, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import getDataMap from './ip';
+import getGeolocationByIP from './ip';
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ app.set('trust proxy', true)
 const port = process.env.PORT || 5000;
 
 app.get('/', async (req: Request, res: Response) => {
-    res.json(await getDataMap(FILE_PATH, req.ip));
+    res.json(await getGeolocationByIP(FILE_PATH, req.ip));
 });
 
 app.listen(port, () => {
