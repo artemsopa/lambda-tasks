@@ -5,6 +5,7 @@ import UsersRepo from "./users";
 
 export interface Users {
     db: Db;
+    getById(id: ObjectId): Promise<User | undefined>;
     create(email: string, password: string): Promise<void>;
     getByEmail(email: string): Promise<User | undefined>;
     getByCredentials(email: string, password: string): Promise<User | undefined>;

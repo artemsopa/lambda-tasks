@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/api-error";
 import { TokenRequest, Tokens } from "../models/models";
-import { Auth } from "../service/service";
+import { Auth, Profile } from "../service/service";
 
 class Controller {
     private authService: Auth;
-    constructor(authService: Auth) {
+    private profile: Profile;
+    constructor(authService: Auth, profile: Profile) {
         this.authService = authService;
+        this.profile = profile;
     }
 
     async signUp(req: Request, res: Response, next: NextFunction) {
@@ -51,9 +53,21 @@ class Controller {
         }
     }
 
-    async me(req: Request, res: Response, next: NextFunction) {
+    async me(req: TokenRequest, res: Response, next: NextFunction) {
         try {
-            res.json(["123", "123", "123"])
+            const token = req.token;
+            if(!token) {
+                return next(ApiError.unauthorizedError());
+            }
+            const num = Number(req.params.num)
+            if(num < 0 || num > 9) {
+                return next(new ApiError(400, "invalid parameter length"));
+            }
+            const user = await this.profile.me(token);
+            return res.status(200).json({
+                request_num: num,
+                user: user
+            })
         } catch (error) {
             next(error);
         }

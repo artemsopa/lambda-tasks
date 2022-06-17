@@ -25,7 +25,7 @@ export async function run() {
 
     const repos = new Repositories(db!)
     const services = new Services(new Deps(repos, hasher, authManager));
-    const controller = new Controller(services.auth);
+    const controller = new Controller(services.auth, services.profile);
 
     newServer(configs.port, controller);
 }

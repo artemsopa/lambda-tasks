@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/api-error";
 import { TokenRequest } from "../models/models";
 
-export function authRefresh(req: TokenRequest, res: Response, next: NextFunction) {
+export function authToken(req: TokenRequest, res: Response, next: NextFunction) {
     try {
         const authHeader = req.headers.authorization;
         if(!authHeader) {

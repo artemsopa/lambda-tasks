@@ -34,7 +34,7 @@ export class AuthManager implements JwtManager {
 
     verifyAccessToken(token: string) {
         try {
-            const jwtObj = jwt.verify(token, this.signingKeyRefresh) as JwtPlaceholder;
+            const jwtObj = jwt.verify(token, this.signingKeyAccess) as JwtPlaceholder;
             return new ObjectId(jwtObj.userId);
         } catch (error) {
             return null
