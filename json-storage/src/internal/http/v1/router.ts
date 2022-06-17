@@ -1,5 +1,5 @@
 import Controller from "./controllers/controller";
-import { createServer, IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 
 class Router {
     private controller: Controller;
