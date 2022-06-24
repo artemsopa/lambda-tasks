@@ -18,5 +18,6 @@ module.exports = {
     'linebreak-style': 0,
     'no-console': 0,
     'no-multi-spaces': ['error'],
+    'consistent-return': 0,
   },
 };
