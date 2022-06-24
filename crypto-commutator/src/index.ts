@@ -17,14 +17,38 @@ import axios from 'axios';
 //   }
 // };
 
+class ResCoin {
+  name: string;
+  price: number;
+
+  constructor(name: string, price: number) {
+    this.name = name;
+    this.price = price;
+  }
+}
+
+class Coin {
+  name: string;
+  cmp: number;
+  cs: number;
+  cb: number;
+  date: number;
+
+  constructor(name: string, cmp: number, cs: number, cb: number, date: number) {
+    this.name = name;
+    this.cmp = cmp;
+    this.cs = cs;
+    this.cb = cb;
+    this.date = date;
+  }
+}
+
 const getCoinMarketCap = async () => {
   try {
     const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?CMC_PRO_API_KEY=25881ef5-9ccd-4a9f-8a8d-b2705b13de7c');
-    return response.data.data.sort((a: any, b:any) => a.cmc_rank - b.cmc_rank)
-      .map((item: any) => ({
-        name: item.symbol,
-        usd: item.quote.USD.price,
-      }));
+    return response.data.data
+      .sort((a: any, b: any) => a.cmc_rank - b.cmc_rank)
+      .map((item: any) => new ResCoin(item.symbol, item.quote.USD.price));
   } catch (error) {
     console.log(error);
   }
@@ -33,11 +57,9 @@ const getCoinMarketCap = async () => {
 const getCoinStats = async () => {
   try {
     const response = await axios.get('https://api.coinstats.app/public/v1/coins?skip=0&currency=USD');
-    return response.data.coins.sort((a: any, b:any) => a.rank - b.rank)
-      .map((item: any) => ({
-        name: item.symbol,
-        usd: item.price,
-      }));
+    return response.data.coins
+      .sort((a: any, b: any) => a.rank - b.rank)
+      .map((item: any) => new ResCoin(item.symbol, item.price));
   } catch (error) {
     console.log(error);
   }
@@ -45,60 +67,39 @@ const getCoinStats = async () => {
 
 const getCoinBase = async () => {
   try {
-    const responseC = await axios.get('https://api.exchange.coinbase.com/currencies');
-    const responseV = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USD');
-    return responseC.data.filter((itemC: any) => itemC.details.type === 'crypto').sort((a: any, b:any) => a.details.sort_order - b.details.sort_order)
-      .map((itemC: any) => ({
-        name: itemC.id,
-        usd: 1 / responseV.data.data.rates[itemC.id],
-      }));
+    const resCoins = await axios.get('https://api.exchange.coinbase.com/currencies');
+    const resPrices = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USD');
+    return resCoins.data
+      .filter((item: any) => item.details.type === 'crypto')
+      .sort((a: any, b: any) => a.details.sort_order - b.details.sort_order)
+      .map((item: any) => new ResCoin(item.id, 1 / resPrices.data.data.rates[item.id]));
   } catch (error) {
     console.log(error);
   }
 };
 
-class MarketPrices {
-  coinMarketCap?: number;
-
-  coinStats?: number;
-
-  coinBase?: number;
-
-  public setCoinMarketCap(usd: number) {
-    this.coinMarketCap = usd;
-  }
-}
-
 const getCoins = async () => {
-  const cmp = await getCoinMarketCap() || [];
-  const cs = await getCoinStats() || [];
-  const cb = await getCoinBase() || [];
+  const cmp = await getCoinMarketCap();
+  const cs = await getCoinStats();
+  const cb = await getCoinBase();
 
-  console.log(new MarketPrices());
-  const coinsNames = new Set([...cmp, ...cs, ...cb].map((item: any) => item.name));
+  const coinsNames = new Set([...cmp, ...cs, ...cb].map((item: ResCoin) => item.name));
+  const coins: Coin[] = [];
   const date = Date.now();
-  const result: any[] = [];
 
-  coinsNames.forEach((item: any) => {
-    const v1 = cmp.find((itemCmp: any) => item === itemCmp.name);
-    const v2 = cs.find((itemCmp: any) => item === itemCmp.name);
-    const v3 = cb.find((itemCmp: any) => item === itemCmp.name);
-    if (v1 && v2 && v3) {
-      result.push({
-        name: item,
-        vals: {
-          cmp: v1.usd,
-          cs: v2.usd,
-          cb: v3.usd,
-        },
-        date: new Date(date),
-      });
+  coinsNames.forEach((name: string) => {
+    const cmpCoins = cmp.find((item: ResCoin) => name === item.name);
+    const csCoins = cs.find((item: ResCoin) => name === item.name);
+    const cbCoins = cb.find((item: ResCoin) => name === item.name);
+    if (cmpCoins && csCoins && cbCoins) {
+      coins.push(new Coin(name, cmpCoins.price, csCoins.price, cbCoins.price, date));
     }
   });
-  // result.length = 5;
-  console.log(JSON.stringify(result, null, '\t'));
-  console.log(result.length);
-  console.log(coinsNames.size);
+  return coins;
 };
 
-getCoins();
+getCoins().then((res: any) => {
+  console.log(JSON.stringify(res, null, '\t'));
+  console.log(res.length);
+  // console.log(coinsNames.size);
+});
