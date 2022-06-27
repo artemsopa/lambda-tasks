@@ -10,17 +10,16 @@ class Server {
 
   initServer() {
     const app: Express = express();
-    const router: Router = Router();
     app.use(express.json());
-    app.use(this.initAPI(router));
-
+    app.use(this.initAPI());
     app.listen(this.port, () => console.log('Server is running!'));
   }
 
-  private initAPI(router: Router) {
-    return router.use('/api', () => {
-      new Handler(this.services, router).initRoutes();
-    });
+  private initAPI() {
+    const router: Router = Router();
+    const v1 = new Handler(this.services);
+    router.use('/api', v1.initHandler());
+    return router;
   }
 }
 

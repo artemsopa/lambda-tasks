@@ -2,15 +2,14 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { Favs } from '../../../service/service';
 
 class FavouriteRoutes {
-  constructor(private favService: Favs, private router: Router) {
+  constructor(private favService: Favs) {
     this.favService = favService;
-    this.router = router;
   }
 
   initRoutes() {
-    this.router.use('/favs', () => {
-      this.router.get('/:id', this.getAllFavourite);
-    });
+    const router = Router();
+    router.get('/:id', this.getAllFavourite.bind(this));
+    return router;
   }
 
   private async getAllFavourite(req: Request, res: Response, next: NextFunction) {

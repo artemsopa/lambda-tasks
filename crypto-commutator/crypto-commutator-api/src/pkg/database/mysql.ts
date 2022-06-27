@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import CryptoInfo from '../../internal/domain/cryptoInfo';
 import CryptoFav from '../../internal/domain/cryptoFav';

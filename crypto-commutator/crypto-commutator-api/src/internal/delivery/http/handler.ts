@@ -4,16 +4,21 @@ import InfoRoutes from './v1/info';
 import FavouriteRoutes from './v1/favoutire';
 
 class Handler {
-  constructor(private services: Services, private router: Router) {
+  constructor(private services: Services) {
     this.services = services;
-    this.router = router;
   }
 
-  initRoutes() {
-    this.router.use('/v1', () => {
-      new InfoRoutes(this.services.infos, this.router).initRoutes();
-      new FavouriteRoutes(this.services.favs, this.router).initRoutes();
-    });
+  initHandler() {
+    const router = Router();
+    router.use('/v1', this.initV1Routes());
+    return router;
+  }
+
+  private initV1Routes() {
+    const router = Router();
+    router.use('/infos', new InfoRoutes(this.services.infos).initRoutes());
+    router.use('/favs', new FavouriteRoutes(this.services.favs).initRoutes());
+    return router;
   }
 }
 

@@ -4,6 +4,7 @@ import Repositories from '../internal/repository/repository';
 import { Deps, Services, Urls } from '../internal/service/service';
 import initDB from '../pkg/database/mysql';
 import Server from '../internal/delivery/server';
+import 'reflect-metadata';
 
 export default async function run() {
   try {
