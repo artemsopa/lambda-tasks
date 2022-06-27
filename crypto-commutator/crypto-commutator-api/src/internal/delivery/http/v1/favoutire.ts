@@ -2,9 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { Favs } from '../../../service/service';
 
 class FavouriteRoutes {
-  private favService: Favs;
-  private router: Router;
-  constructor(favService: Favs, router: Router) {
+  constructor(private favService: Favs, private router: Router) {
     this.favService = favService;
     this.router = router;
   }

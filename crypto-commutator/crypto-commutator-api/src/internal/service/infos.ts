@@ -1,89 +1,15 @@
 import { AxiosInstance } from 'axios';
-import { InfoCoin, Infos, PushCoin, ResCoin } from './service';
+import { InfoCoin, Infos, PushCoin, ResCoin, Urls } from './service';
 import { CryptoInfos } from '../repository/repository';
 import CryptoInfo from '../domain/cryptoInfo';
-
-const getCoinMarketCap = async (axios: AxiosInstance): Promise<ResCoin[]> => {
-  const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?CMC_PRO_API_KEY=25881ef5-9ccd-4a9f-8a8d-b2705b13de7c');
-  return response.data.data
-    .sort((a: any, b: any) => a.cmc_rank - b.cmc_rank)
-    .map((item: any) => new ResCoin(item.symbol, item.quote.USD.price));
-};
-
-const getCoinBase = async (axios: AxiosInstance): Promise<ResCoin[]> => {
-  const resCoins = await axios.get('https://api.exchange.coinbase.com/currencies');
-  const resPrices = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USD');
-  return resCoins.data
-    .filter((item: any) => item.details.type === 'crypto')
-    .sort((a: any, b: any) => a.details.sort_order - b.details.sort_order)
-    .map((item: any) => new ResCoin(item.id, 1 / resPrices.data.data.rates[item.id]));
-};
-
-const getCoinStats = async (axios: AxiosInstance): Promise<ResCoin[]> => {
-  const response = await axios.get('https://api.coinstats.app/public/v1/coins?skip=0&currency=USD');
-  return response.data.coins
-    .sort((a: any, b: any) => a.rank - b.rank)
-    .map((item: any) => new ResCoin(item.symbol, item.price));
-};
-
-const getKuCoin = async (axios: AxiosInstance): Promise<ResCoin[]> => {
-  const response = await axios.get('https://api.kucoin.com/api/v1/prices');
-  return Object.keys(response.data.data)
-    .map((item: any) => new ResCoin(item, response.data.data[item]));
-};
-
-const getCoinPaprika = async (axios: AxiosInstance): Promise<ResCoin[]> => {
-  const response = await axios.get('https://api.coinpaprika.com/v1/tickers');
-  return response.data
-    .sort((a: any, b: any) => a.rank - b.rank)
-    .map((item: any) => new ResCoin(item.symbol, item.quotes.USD.price));
-};
-
-const getCoins = async (axios: AxiosInstance) => {
-  const cm = await getCoinMarketCap(axios);
-  const cb = await getCoinBase(axios);
-  const cs = await getCoinStats(axios);
-  const kc = await getKuCoin(axios);
-  const cp = await getCoinPaprika(axios);
-
-  const coinsNames = new Set(
-    [...cm, ...cb, ...cs, ...kc, ...cp].map((item: ResCoin) => item.name),
-  );
-  const coins: PushCoin[] = [];
-  const time = Date.now();
-
-  coinsNames.forEach((name: string) => {
-    const cmCoins = cm.find((item: ResCoin) => name === item.name);
-    const cbCoins = cb.find((item: ResCoin) => name === item.name);
-    const csCoins = cs.find((item: ResCoin) => name === item.name);
-    const kcCoins = kc.find((item: ResCoin) => name === item.name);
-    const cpCoins = kc.find((item: ResCoin) => name === item.name);
-    if (cmCoins && cbCoins && csCoins && kcCoins && cpCoins) {
-      coins.push(
-        new PushCoin(
-          name,
-          cmCoins.price,
-          cbCoins.price,
-          csCoins.price,
-          kcCoins.price,
-          cpCoins.price,
-          time,
-        ),
-      );
-    }
-    if (coins.length === 30) coinsNames.clear();
-  });
-  return coins;
-};
 
 const getAvgPrice = (arr: number[]) => arr.reduce((sum, item) => sum + item, 0) / arr.length;
 
 class InfosService implements Infos {
-  private infosRepo: CryptoInfos;
-  private axios: AxiosInstance;
-  constructor(infosRepo: CryptoInfos, axios: AxiosInstance) {
+  constructor(private infosRepo: CryptoInfos, private axios: AxiosInstance, private urls: Urls) {
     this.infosRepo = infosRepo;
     this.axios = axios;
+    this.urls = urls;
   }
 
   async getRecentInfos(): Promise<InfoCoin[]> {
@@ -118,7 +44,7 @@ class InfosService implements Infos {
 
   async saveInfos(): Promise<void> {
     await this.infosRepo.saveInfos(
-      (await getCoins(this.axios)).map((item: PushCoin) => new CryptoInfo(
+      (await this.getCoins()).map((item: PushCoin) => new CryptoInfo(
         item.name,
         item.cm,
         item.cb,
@@ -128,6 +54,79 @@ class InfosService implements Infos {
         item.createdAt,
       )),
     );
+  }
+
+  private async getCoinMarketCap(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.cm);
+    return response.data.data
+      .sort((a: any, b: any) => a.cmc_rank - b.cmc_rank)
+      .map((item: any) => new ResCoin(item.symbol, item.quote.USD.price));
+  }
+
+  private async getCoinBase(): Promise<ResCoin[]> {
+    const resCoins = await this.axios.get(this.urls.cbCoins);
+    const resPrices = await this.axios.get(this.urls.cbPrices);
+    return resCoins.data
+      .filter((item: any) => item.details.type === 'crypto')
+      .sort((a: any, b: any) => a.details.sort_order - b.details.sort_order)
+      .map((item: any) => new ResCoin(item.id, 1 / resPrices.data.data.rates[item.id]));
+  }
+
+  private async getCoinStats(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.cs);
+    return response.data.coins
+      .sort((a: any, b: any) => a.rank - b.rank)
+      .map((item: any) => new ResCoin(item.symbol, item.price));
+  }
+
+  private async getKuCoin(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.kc);
+    return Object.keys(response.data.data)
+      .map((item: any) => new ResCoin(item, response.data.data[item]));
+  }
+
+  private async getCoinPaprika(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.cp);
+    return response.data
+      .sort((a: any, b: any) => a.rank - b.rank)
+      .map((item: any) => new ResCoin(item.symbol, item.quotes.USD.price));
+  }
+
+  private async getCoins() {
+    const cm = await this.getCoinMarketCap();
+    const cb = await this.getCoinBase();
+    const cs = await this.getCoinStats();
+    const kc = await this.getKuCoin();
+    const cp = await this.getCoinPaprika();
+
+    const coinsNames = new Set(
+      [...cm, ...cb, ...cs, ...kc, ...cp].map((item: ResCoin) => item.name),
+    );
+    const coins: PushCoin[] = [];
+    const time = Date.now();
+
+    coinsNames.forEach((name: string) => {
+      const cmCoins = cm.find((item: ResCoin) => name === item.name);
+      const cbCoins = cb.find((item: ResCoin) => name === item.name);
+      const csCoins = cs.find((item: ResCoin) => name === item.name);
+      const kcCoins = kc.find((item: ResCoin) => name === item.name);
+      const cpCoins = kc.find((item: ResCoin) => name === item.name);
+      if (cmCoins && cbCoins && csCoins && kcCoins && cpCoins) {
+        coins.push(
+          new PushCoin(
+            name,
+            cmCoins.price,
+            cbCoins.price,
+            csCoins.price,
+            kcCoins.price,
+            cpCoins.price,
+            time,
+          ),
+        );
+      }
+      if (coins.length === 30) coinsNames.clear();
+    });
+    return coins;
   }
 }
 

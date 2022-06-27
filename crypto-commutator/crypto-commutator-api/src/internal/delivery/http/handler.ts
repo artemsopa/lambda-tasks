@@ -4,9 +4,7 @@ import InfoRoutes from './v1/info';
 import FavouriteRoutes from './v1/favoutire';
 
 class Handler {
-  private services: Services;
-  private router: Router;
-  constructor(services: Services, router: Router) {
+  constructor(private services: Services, private router: Router) {
     this.services = services;
     this.router = router;
   }

@@ -67,12 +67,38 @@ export interface Favs {
   removeFav(idTg: number, name: string): Promise<void>;
 }
 
+export class Urls {
+  cm: string;
+  cbCoins: string;
+  cbPrices: string;
+  cs: string;
+  kc: string;
+  cp: string;
+  constructor(
+    cm: string,
+    cbCoins: string,
+    cbPrices: string,
+    cs: string,
+    kc: string,
+    cp: string,
+  ) {
+    this.cm = cm;
+    this.cbCoins = cbCoins;
+    this.cbPrices = cbPrices;
+    this.cs = cs;
+    this.kc = kc;
+    this.cp = cp;
+  }
+}
+
 export class Deps {
   repos: Repositories;
   axios: AxiosInstance;
-  constructor(repos: Repositories, axios: AxiosInstance) {
+  urls: Urls;
+  constructor(repos: Repositories, axios: AxiosInstance, urls: Urls) {
     this.repos = repos;
     this.axios = axios;
+    this.urls = urls;
   }
 }
 
@@ -80,7 +106,7 @@ export class Services {
   infos: Infos;
   favs: Favs;
   constructor(deps: Deps) {
-    this.infos = new InfosService(deps.repos.infos, deps.axios);
+    this.infos = new InfosService(deps.repos.infos, deps.axios, deps.urls);
     this.favs = new FavsService(deps.repos.favs);
   }
 }

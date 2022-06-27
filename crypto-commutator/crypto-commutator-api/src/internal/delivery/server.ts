@@ -3,9 +3,7 @@ import { Services } from '../service/service';
 import Handler from './http/handler';
 
 class Server {
-  services: Services;
-  port: number;
-  constructor(services: Services, port: number) {
+  constructor(private services: Services, private port: number) {
     this.services = services;
     this.port = port;
   }
