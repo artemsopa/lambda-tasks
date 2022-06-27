@@ -56,42 +56,6 @@ class InfosService implements Infos {
     );
   }
 
-  private async getCoinMarketCap(): Promise<ResCoin[]> {
-    const response = await this.axios.get(this.urls.cm);
-    return response.data.data
-      .sort((a: any, b: any) => a.cmc_rank - b.cmc_rank)
-      .map((item: any) => new ResCoin(item.symbol, item.quote.USD.price));
-  }
-
-  private async getCoinBase(): Promise<ResCoin[]> {
-    const resCoins = await this.axios.get(this.urls.cbCoins);
-    const resPrices = await this.axios.get(this.urls.cbPrices);
-    return resCoins.data
-      .filter((item: any) => item.details.type === 'crypto')
-      .sort((a: any, b: any) => a.details.sort_order - b.details.sort_order)
-      .map((item: any) => new ResCoin(item.id, 1 / resPrices.data.data.rates[item.id]));
-  }
-
-  private async getCoinStats(): Promise<ResCoin[]> {
-    const response = await this.axios.get(this.urls.cs);
-    return response.data.coins
-      .sort((a: any, b: any) => a.rank - b.rank)
-      .map((item: any) => new ResCoin(item.symbol, item.price));
-  }
-
-  private async getKuCoin(): Promise<ResCoin[]> {
-    const response = await this.axios.get(this.urls.kc);
-    return Object.keys(response.data.data)
-      .map((item: any) => new ResCoin(item, response.data.data[item]));
-  }
-
-  private async getCoinPaprika(): Promise<ResCoin[]> {
-    const response = await this.axios.get(this.urls.cp);
-    return response.data
-      .sort((a: any, b: any) => a.rank - b.rank)
-      .map((item: any) => new ResCoin(item.symbol, item.quotes.USD.price));
-  }
-
   private async getCoins() {
     const cm = await this.getCoinMarketCap();
     const cb = await this.getCoinBase();
@@ -127,6 +91,42 @@ class InfosService implements Infos {
       if (coins.length === 30) coinsNames.clear();
     });
     return coins;
+  }
+
+  private async getCoinMarketCap(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.cm);
+    return response.data.data
+      .sort((a: any, b: any) => a.cmc_rank - b.cmc_rank)
+      .map((item: any) => new ResCoin(item.symbol, item.quote.USD.price));
+  }
+
+  private async getCoinBase(): Promise<ResCoin[]> {
+    const resCoins = await this.axios.get(this.urls.cbCoins);
+    const resPrices = await this.axios.get(this.urls.cbPrices);
+    return resCoins.data
+      .filter((item: any) => item.details.type === 'crypto')
+      .sort((a: any, b: any) => a.details.sort_order - b.details.sort_order)
+      .map((item: any) => new ResCoin(item.id, 1 / resPrices.data.data.rates[item.id]));
+  }
+
+  private async getCoinStats(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.cs);
+    return response.data.coins
+      .sort((a: any, b: any) => a.rank - b.rank)
+      .map((item: any) => new ResCoin(item.symbol, item.price));
+  }
+
+  private async getKuCoin(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.kc);
+    return Object.keys(response.data.data)
+      .map((item: any) => new ResCoin(item, response.data.data[item]));
+  }
+
+  private async getCoinPaprika(): Promise<ResCoin[]> {
+    const response = await this.axios.get(this.urls.cp);
+    return response.data
+      .sort((a: any, b: any) => a.rank - b.rank)
+      .map((item: any) => new ResCoin(item.symbol, item.quotes.USD.price));
   }
 }
 
