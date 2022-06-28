@@ -16,29 +16,32 @@ export class ResCoin {
 
 export class PushCoin {
   name: string;
+  rank: number;
   cm: number;
   cb: number;
   cs: number;
   kc: number;
   cp: number;
-  createdAt: number;
+  time: number;
 
   constructor(
     name: string,
+    rank: number,
     cm: number,
     cb: number,
     cs: number,
     kc: number,
     cp: number,
-    createdAt: number,
+    time: number,
   ) {
     this.name = name;
+    this.rank = rank;
     this.cm = cm;
     this.cb = cb;
     this.cs = cs;
     this.kc = kc;
     this.cp = cp;
-    this.createdAt = createdAt;
+    this.time = time;
   }
 }
 
@@ -55,10 +58,28 @@ export class InfoCoin {
   }
 }
 
+export class CoinPrice {
+  time: string;
+  price: number;
+  constructor(time: string, price: number) {
+    this.time = time;
+    this.price = price;
+  }
+}
+
+export class CoinPrices {
+  name: string;
+  prices: CoinPrice[];
+  constructor(name: string, prices: CoinPrice[]) {
+    this.name = name;
+    this.prices = prices;
+  }
+}
+
 export interface Infos {
   getRecentInfos(): Promise<InfoCoin[]>;
-  getInfosByName(name: string): Promise<InfoCoin[]>;
-  saveInfos(infos: PushCoin[]): Promise<void>;
+  getInfosByName(name: string): Promise<CoinPrices>;
+  saveInfos(): Promise<void>;
 }
 
 export interface Favs {

@@ -1,11 +1,12 @@
 import { AxiosInstance } from 'axios';
-import { InfoCoin, Infos, PushCoin, ResCoin, Urls } from './service';
+import { InfoCoin, Infos, PushCoin, ResCoin, Urls, CoinPrices, CoinPrice } from './service';
 import { CryptoInfos } from '../repository/repository';
 import CryptoInfo from '../domain/cryptoInfo';
 
 const getAvgPrice = (arr: number[]) => arr.reduce((sum, item) => sum + item, 0) / arr.length;
 
 class InfosService implements Infos {
+  private times: string[] = ['now', '30m', '1h', '3h', '6h', '12h', '24h'];
   constructor(private infosRepo: CryptoInfos, private axios: AxiosInstance, private urls: Urls) {
     this.infosRepo = infosRepo;
     this.axios = axios;
@@ -27,31 +28,30 @@ class InfosService implements Infos {
     return infos;
   }
 
-  async getInfosByName(name: string): Promise<InfoCoin[]> {
-    const infosRepo = await this.infosRepo.findInfosByName(name);
-    if (!infosRepo) {
-      throw new Error('Cannot find cryptocurrency!');
-    }
-    const infos = infosRepo.map((item: CryptoInfo) => new InfoCoin(item.name, getAvgPrice([
-      item.cmValue,
-      item.cbValue,
-      item.csValue,
-      item.kcValue,
-      item.csValue,
-    ])));
-    return infos;
+  async getInfosByName(name: string): Promise<CoinPrices> {
+    const infosRepo = await this.infosRepo.findRecentPricesByName(name);
+    const prices = infosRepo
+      .map((item: CryptoInfo, index: number) => new CoinPrice(this.times[index], getAvgPrice([
+        item.cmValue,
+        item.cbValue,
+        item.csValue,
+        item.kcValue,
+        item.csValue,
+      ])));
+    return new CoinPrices(name, prices);
   }
 
   async saveInfos(): Promise<void> {
     await this.infosRepo.saveInfos(
       (await this.getCoins()).map((item: PushCoin) => new CryptoInfo(
         item.name,
+        item.rank,
         item.cm,
         item.cb,
         item.cs,
         item.kc,
         item.cs,
-        item.createdAt,
+        item.time,
       )),
     );
   }
@@ -67,8 +67,8 @@ class InfosService implements Infos {
       [...cm, ...cb, ...cs, ...kc, ...cp].map((item: ResCoin) => item.name),
     );
     const coins: PushCoin[] = [];
-    const time = Date.now();
 
+    let rank = 0;
     coinsNames.forEach((name: string) => {
       const cmCoins = cm.find((item: ResCoin) => name === item.name);
       const cbCoins = cb.find((item: ResCoin) => name === item.name);
@@ -79,14 +79,16 @@ class InfosService implements Infos {
         coins.push(
           new PushCoin(
             name,
+            rank,
             cmCoins.price,
             cbCoins.price,
             csCoins.price,
             kcCoins.price,
             cpCoins.price,
-            time,
+            Date.now(),
           ),
         );
+        rank += 1;
       }
       if (coins.length === 30) coinsNames.clear();
     });

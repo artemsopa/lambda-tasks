@@ -8,26 +8,30 @@ export default class CryptoInfo {
     @Column()
       name: string;
 
-    @Column('decimal')
+    @Column()
+      rank: number;
+
+    @Column('double')
       cmValue: number;
 
-    @Column('decimal')
+    @Column('double')
       cbValue: number;
 
-    @Column('decimal')
+    @Column('double')
       csValue: number;
 
-    @Column('decimal')
+    @Column('double')
       kcValue: number;
 
-    @Column('decimal')
+    @Column('double')
       cpValue: number;
 
-    @Column({ type: 'timestamp' })
-      createdAt: number;
+    @Column('bigint')
+      time: number;
 
     constructor(
       name: string,
+      rank: number,
       cmValue: number,
       cbValue: number,
       csValue: number,
@@ -36,11 +40,12 @@ export default class CryptoInfo {
       time: number,
     ) {
       this.name = name;
+      this.rank = rank;
       this.cmValue = cmValue;
       this.cbValue = cbValue;
       this.csValue = csValue;
       this.kcValue = kcValue;
       this.cpValue = cpValue;
-      this.createdAt = time;
+      this.time = time;
     }
 }

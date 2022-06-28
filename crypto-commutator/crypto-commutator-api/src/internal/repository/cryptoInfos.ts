@@ -9,22 +9,34 @@ class CryptoInfosRepo implements CryptoInfos {
     this.repo = ds.getRepository(CryptoInfo);
   }
 
-  async findRecentInfos(): Promise<CryptoInfo[] | undefined> {
+  async findRecentInfos(): Promise<CryptoInfo[]> {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where: {
-        createdAt: Between(timestamp, timestamp + (5 * 60 * 1000)),
+        time: Between(timestamp - (300 * 1000), timestamp),
+      },
+      order: {
+        rank: 'ASC',
       },
     });
     return infos;
   }
 
-  async findInfosByName(name: string): Promise<CryptoInfo[] | undefined> {
+  async findRecentPricesByName(name: string): Promise<CryptoInfo[]> {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where: {
         name,
-        createdAt: Between(timestamp, timestamp + (24 * 65 * 60 * 1000)),
+        time: Between(timestamp - 300 * 1000, timestamp)
+        || Between(timestamp - 35 * 60 * 1000, timestamp - 30 * 60 * 1000)
+        || Between(timestamp - 65 * 60 * 1000, timestamp - 60 * 60 * 1000)
+        || Between(timestamp - 3 * 60 * 60 * 1000 + 300 * 1000, timestamp - 3 * 60 * 60 * 1000)
+        || Between(timestamp - 6 * 60 * 60 * 1000 + 300 * 1000, timestamp - 6 * 60 * 60 * 1000)
+        || Between(timestamp - 12 * 60 * 60 * 1000 + 300 * 1000, timestamp - 12 * 60 * 60 * 1000)
+        || Between(timestamp - 24 * 60 * 60 * 1000 + 300 * 1000, timestamp - 24 * 60 * 60 * 1000),
+      },
+      order: {
+        rank: 'ASC',
       },
     });
     return infos;

@@ -9,12 +9,22 @@ class InfoRoutes {
   initRoutes() {
     const router = Router();
     router.get('/', this.getAllRecent.bind(this));
+    router.get('/:name', this.getCrypto.bind(this));
     return router;
   }
 
-  async getAllRecent(req: Request, res: Response, next: NextFunction) {
+  private async getAllRecent(req: Request, res: Response, next: NextFunction) {
     try {
       res.status(200).json(await this.infoService.getRecentInfos());
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async getCrypto(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name } = req.params;
+      res.status(200).json(await this.infoService.getInfosByName(name));
     } catch (error) {
       next(error);
     }

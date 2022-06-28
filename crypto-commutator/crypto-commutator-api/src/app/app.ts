@@ -5,6 +5,7 @@ import { Deps, Services, Urls } from '../internal/service/service';
 import initDB from '../pkg/database/mysql';
 import Server from '../internal/delivery/server';
 import 'reflect-metadata';
+import startTask from '../pkg/cron/cron';
 
 export default async function run() {
   try {
@@ -29,6 +30,8 @@ export default async function run() {
     )));
 
     new Server(services, configs.port).initServer();
+
+    startTask(services);
   } catch (error) {
     console.log(error);
   }

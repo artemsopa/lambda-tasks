@@ -6,8 +6,8 @@ import CryptoInfosRepo from './cryptoInfos';
 import CryptoFavsRepo from './cryptoFavs';
 
 export interface CryptoInfos {
-  findRecentInfos(): Promise<CryptoInfo[] | undefined>;
-  findInfosByName(name: string): Promise<CryptoInfo[] | undefined>;
+  findRecentInfos(): Promise<CryptoInfo[]>;
+  findRecentPricesByName(name: string): Promise<CryptoInfo[]>;
   saveInfos(infos: CryptoInfo[]): Promise<void>;
 }
 
