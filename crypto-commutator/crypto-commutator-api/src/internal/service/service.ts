@@ -112,6 +112,8 @@ export class Urls {
   }
 }
 
+export const getAvgPrice = (arr: number[]) => arr.reduce((sum, item) => sum + item, 0) / arr.length;
+
 export class Deps {
   repos: Repositories;
   axios: AxiosInstance;
@@ -128,6 +130,6 @@ export class Services {
   favs: Favs;
   constructor(deps: Deps) {
     this.infos = new InfosService(deps.repos.infos, deps.axios, deps.urls);
-    this.favs = new FavsService(deps.repos.favs);
+    this.favs = new FavsService(deps.repos.favs, deps.repos.infos);
   }
 }

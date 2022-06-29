@@ -9,7 +9,7 @@ class CryptoFavsRepo implements CryptoFavs {
     this.repo = ds.getRepository(CryptoFav);
   }
 
-  async findAllFavs(idTg: number): Promise<CryptoFav[] | undefined> {
+  async findAllFavs(idTg: number): Promise<CryptoFav[]> {
     const infos = await this.repo.find({
       where: {
         idTg,

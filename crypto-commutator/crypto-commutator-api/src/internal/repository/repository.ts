@@ -7,12 +7,13 @@ import CryptoFavsRepo from './cryptoFavs';
 
 export interface CryptoInfos {
   findRecentInfos(): Promise<CryptoInfo[]>;
+  findInfosByNames(names: string[]): Promise<CryptoInfo[]>;
   findRecentPricesByName(name: string): Promise<CryptoInfo[]>;
   saveInfos(infos: CryptoInfo[]): Promise<void>;
 }
 
 export interface CryptoFavs {
-  findAllFavs(idTg: number): Promise<CryptoFav[] | undefined>;
+  findAllFavs(idTg: number): Promise<CryptoFav[]>;
   findFav(idTg: number, name: string): Promise<CryptoFav | null>;
   saveFav(fav: CryptoFav): Promise<void>;
   deleteFav(idTg: number, name: string): Promise<void>;

@@ -1,6 +1,10 @@
-import { Between, DataSource, Repository } from 'typeorm';
+import { Between, DataSource, In, Repository } from 'typeorm';
 import { CryptoInfos } from './repository';
 import CryptoInfo from '../domain/cryptoInfo';
+
+const MIN_5 = 5 * 60 * 1000;
+const MIN_30 = 30 * 60 * 1000;
+const HOUR_1 = 60 * 60 * 1000;
 
 class CryptoInfosRepo implements CryptoInfos {
   repo: Repository<CryptoInfo>;
@@ -13,7 +17,7 @@ class CryptoInfosRepo implements CryptoInfos {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where: {
-        time: Between(timestamp - (300 * 1000), timestamp),
+        time: Between(timestamp - MIN_5, timestamp),
       },
       order: {
         rank: 'ASC',
@@ -22,19 +26,34 @@ class CryptoInfosRepo implements CryptoInfos {
     return infos;
   }
 
-  async findRecentPricesByName(name: string): Promise<CryptoInfo[]> {
+  async findInfosByNames(names: string[]): Promise<CryptoInfo[]> {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where: {
-        name,
-        time: Between(timestamp - 300 * 1000, timestamp)
-        || Between(timestamp - 35 * 60 * 1000, timestamp - 30 * 60 * 1000)
-        || Between(timestamp - 65 * 60 * 1000, timestamp - 60 * 60 * 1000)
-        || Between(timestamp - 3 * 60 * 60 * 1000 + 300 * 1000, timestamp - 3 * 60 * 60 * 1000)
-        || Between(timestamp - 6 * 60 * 60 * 1000 + 300 * 1000, timestamp - 6 * 60 * 60 * 1000)
-        || Between(timestamp - 12 * 60 * 60 * 1000 + 300 * 1000, timestamp - 12 * 60 * 60 * 1000)
-        || Between(timestamp - 24 * 60 * 60 * 1000 + 300 * 1000, timestamp - 24 * 60 * 60 * 1000),
+        name: In(names),
+        time: Between(timestamp - MIN_5, timestamp),
       },
+      order: {
+        rank: 'ASC',
+      },
+    });
+    console.log(infos);
+    return infos;
+  }
+
+  async findRecentPricesByName(name: string): Promise<CryptoInfo[]> {
+    const timestamp = Date.now();
+    const infos = await this.repo.find({
+      where:
+      [
+        { name, time: Between(timestamp - MIN_5, timestamp) },
+        { name, time: Between(timestamp - MIN_30 - MIN_5, timestamp - MIN_30) },
+        { name, time: Between(timestamp - HOUR_1 - MIN_5, timestamp - HOUR_1) },
+        { name, time: Between(timestamp - 3 * HOUR_1 - MIN_5, timestamp - 3 * HOUR_1) },
+        { name, time: Between(timestamp - 6 * HOUR_1 - MIN_5, timestamp - 6 * HOUR_1) },
+        { name, time: Between(timestamp - 12 * HOUR_1 - MIN_5, timestamp - 12 * HOUR_1) },
+        { name, time: Between(timestamp - 24 * HOUR_1 - MIN_5, timestamp - 24 * HOUR_1) },
+      ],
       order: {
         rank: 'ASC',
       },

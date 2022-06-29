@@ -1,9 +1,7 @@
 import { AxiosInstance } from 'axios';
-import { InfoCoin, Infos, PushCoin, ResCoin, Urls, CoinPrices, CoinPrice } from './service';
+import { InfoCoin, Infos, PushCoin, ResCoin, Urls, CoinPrices, CoinPrice, getAvgPrice } from './service';
 import { CryptoInfos } from '../repository/repository';
 import CryptoInfo from '../domain/cryptoInfo';
-
-const getAvgPrice = (arr: number[]) => arr.reduce((sum, item) => sum + item, 0) / arr.length;
 
 class InfosService implements Infos {
   private times: string[] = ['now', '30m', '1h', '3h', '6h', '12h', '24h'];
@@ -15,7 +13,7 @@ class InfosService implements Infos {
 
   async getRecentInfos(): Promise<InfoCoin[]> {
     const infosRepo = await this.infosRepo.findRecentInfos();
-    if (!infosRepo) {
+    if (infosRepo.length === 0) {
       throw new Error('Cannot find any cryptocurrency!');
     }
     const infos = infosRepo.map((item: CryptoInfo) => new InfoCoin(item.name, getAvgPrice([
@@ -30,6 +28,9 @@ class InfosService implements Infos {
 
   async getInfosByName(name: string): Promise<CoinPrices> {
     const infosRepo = await this.infosRepo.findRecentPricesByName(name);
+    if (infosRepo.length === 0) {
+      throw new Error('Cannot get crytocurrency info!');
+    }
     const prices = infosRepo
       .map((item: CryptoInfo, index: number) => new CoinPrice(this.times[index], getAvgPrice([
         item.cmValue,
