@@ -1,5 +1,5 @@
 import { CryptoFavs, CryptoInfos } from '../repository/repository';
-import { Favs, getAvgPrice, InfoCoin } from './service';
+import ApiError, { Favs, getAvgPrice, InfoCoin } from './service';
 import CryptoFav from '../domain/cryptoFav';
 import CryptoInfo from '../domain/cryptoInfo';
 
@@ -13,9 +13,9 @@ class FavsService implements Favs {
 
   async getAllFavs(idTg: number): Promise<InfoCoin[]> {
     const favsRepos = await this.favsRepo.findAllFavs(idTg);
-    if (favsRepos.length === 0) {
-      throw new Error('Cannot find any favourite coin!');
-    }
+    // if (favsRepos.length === 0) {
+    //   throw new Error('Cannot find any favourite coin!');
+    // }
     const infosRepos = await this.infosRepo.findInfosByNames(
       favsRepos.map((item: CryptoFav) => item.name),
     );
@@ -31,11 +31,11 @@ class FavsService implements Favs {
   async saveFav(idTg: number, name: string): Promise<void> {
     const infoRepo = await this.favsRepo.findFav(idTg, name);
     if (infoRepo) {
-      throw new Error('Favourite already exists!');
+      throw ApiError.badRequest('Favourite already exists!');
     }
     const info = await this.infosRepo.findInfosByNames([name]);
     if (info.length === 0) {
-      throw new Error('Unknown cryptocurrency!');
+      throw ApiError.badRequest('Unknown cryptocurrency!');
     }
     await this.favsRepo.saveFav(new CryptoFav(idTg, name));
   }
@@ -43,7 +43,7 @@ class FavsService implements Favs {
   async removeFav(idTg: number, name: string): Promise<void> {
     const infoRepo = await this.favsRepo.findFav(idTg, name);
     if (!infoRepo) {
-      throw new Error('Cannot find favourite!');
+      throw ApiError.badRequest('Favourite does not exist!');
     }
     await this.favsRepo.deleteFav(idTg, name);
   }

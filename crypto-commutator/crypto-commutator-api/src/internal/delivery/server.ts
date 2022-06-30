@@ -1,6 +1,7 @@
 import express, { Express, Router } from 'express';
 import { Services } from '../service/service';
 import Handler from './http/handler';
+import errorMiddleware from './middlewares/error';
 
 class Server {
   constructor(private services: Services, private port: number) {
@@ -12,6 +13,7 @@ class Server {
     const app: Express = express();
     app.use(express.json());
     app.use(this.initAPI());
+    app.use(errorMiddleware);
     app.listen(this.port, () => console.log('Server is running!'));
   }
 

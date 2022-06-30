@@ -16,8 +16,13 @@ class FavouriteRoutes {
 
   private async getAllFavourite(req: Request, res: Response, next: NextFunction) {
     try {
-      const idTg = Number(req.params.id);
-      res.status(200).json(await this.favService.getAllFavs(idTg));
+      const idTg = req.params.id;
+      if (!idTg) {
+        res.status(400).json({
+          message: 'Invalid user ID!',
+        });
+      }
+      res.status(200).json(await this.favService.getAllFavs(Number(idTg)));
     } catch (error) {
       next(error);
     }
@@ -26,6 +31,11 @@ class FavouriteRoutes {
   private async createFavourite(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, name } = req.body;
+      if (!id || !name) {
+        res.status(400).json({
+          message: 'Invalid user ID or cryptocurrency name!',
+        });
+      }
       await this.favService.saveFav(id, name);
       res.status(200).json({
         message: 'Favourite created!',
@@ -38,6 +48,11 @@ class FavouriteRoutes {
   private async deleteFavourite(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, name } = req.query;
+      if (!id || !name) {
+        res.status(400).json({
+          message: 'Invalid user ID or cryptocurrency name!',
+        });
+      }
       await this.favService.removeFav(Number(id), String(name));
       res.status(200).json({
         message: 'Favourite deleted!',
