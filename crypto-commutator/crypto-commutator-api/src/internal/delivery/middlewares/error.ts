@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import ApiError from '../../service/service';
 
-// eslint-disable-next-line no-unused-vars
 const errorMiddleware = (error: Error, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
   if (error instanceof ApiError) {

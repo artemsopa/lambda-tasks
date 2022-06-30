@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { AxiosInstance } from 'axios';
 import Repositories from '../repository/repository';
 import FavsService from './favs';

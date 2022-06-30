@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { DataSource } from 'typeorm';
 import CryptoFav from '../domain/cryptoFav';
 import CryptoInfo from '../domain/cryptoInfo';
