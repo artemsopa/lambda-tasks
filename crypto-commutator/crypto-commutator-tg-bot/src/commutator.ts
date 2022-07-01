@@ -15,7 +15,7 @@ const getStr = (str: string, length: number) => {
 };
 
 const formatList = (list: InfoCoin[]) => {
-  let str = '🏆 RECENT TOP-30\n\n';
+  let str = '';
   list.forEach((item: InfoCoin) => {
     str += `⠀🔐 /${item.name} \n⠀💸 ${item.avgPrice.toFixed(2)}$\n-----------------\n`;
   });
@@ -57,7 +57,7 @@ class Commutator {
   async getRecent() {
     try {
       const response = await axios.get<InfoCoin[]>(`${this.baseUrl}infos/`);
-      return formatList(response.data);
+      return `🏆 RECENT TOP-30\n\n${formatList(response.data)}`;
     } catch (error: any) {
       if (error.response.data) return error.response.data.message;
       return error.message;
@@ -78,10 +78,23 @@ class Commutator {
     try {
       const response = await axios.get<InfoCoin[]>(`${this.baseUrl}favs/${id}`);
       if (response.data.length === 0) return 'Your favourite list is empty!';
-      return formatList(response.data);
+      return `⭐️ YOUR FAVOURITES\n\n${formatList(response.data)}`;
     } catch (error: any) {
       if (error.response.data) return error.response.data.message;
       return error.message;
+    }
+  }
+
+  async getButtonText(id: any, name: string) {
+    try {
+      const response = await axios.get<InfoCoin[]>(`${this.baseUrl}favs/${id}`);
+      let bText: string[] = ['Add to favourites', `/create_favourite ${name}`];
+      if (response.data) {
+        if (response.data.find((item: InfoCoin) => item.name === name)) { bText = ['Remove from favourites', `/delete_favourite ${name}`]; }
+      }
+      return bText;
+    } catch (error: any) {
+      return ['Cannot find operation...', '/list_recent'];
     }
   }
 
@@ -93,7 +106,7 @@ class Commutator {
       });
       return response.data.message;
     } catch (error: any) {
-      if (error.response.data) return error.response.data.message;
+      if (error.response.data) return 'Invalid cryptocurrency symbol!';
       return error.message;
     }
   }

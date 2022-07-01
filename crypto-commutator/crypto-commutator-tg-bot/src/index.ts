@@ -30,12 +30,43 @@ const sendMessage = async (chatId: number, text: string) => {
   });
 };
 
+const sendMessageInline = async (chatId: number, text: string, bText: string, command: string) => {
+  await axios.post(`${TELEGRAM_API}/sendMessage`, {
+    chat_id: chatId,
+    text,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: bText,
+            callback_data: command,
+          },
+        ],
+      ],
+    },
+  });
+};
+
 app.post(URI, async (req, res) => {
   try {
-    const { id, username } = req.body.message.chat;
-    const text = req.body.message.text.split(' ');
-    const command = text[0];
-    const symbol = text[1];
+    let id = 0;
+    let username = '';
+    let text = '';
+    let command = '';
+    let symbol = '';
+    if (req.body.callback_query) {
+      id = req.body.callback_query.message.chat.id;
+      username = req.body.callback_query.message.chat.username;
+      text = req.body.callback_query.data.split(' ');
+      command = text[0];
+      symbol = text[1];
+    } else {
+      id = req.body.message.chat.id;
+      username = req.body.message.chat.username;
+      text = req.body.message.text.split(' ');
+      command = text[0];
+      symbol = text[1];
+    }
 
     switch (command) {
       case '/start':
@@ -57,8 +88,17 @@ app.post(URI, async (req, res) => {
         await sendMessage(id, await commutator.deleteFavourite(id, symbol));
         break;
       default:
-        if (command[0] === '/') await sendMessage(id, await commutator.getCrypto(command.slice(1)));
-        else await sendMessage(id, 'Unknown command!');
+        if (command[0] === '/') {
+          const bText = await commutator.getButtonText(id, command.slice(1));
+          await sendMessageInline(
+            id,
+            await commutator.getCrypto(
+              command.slice(1),
+            ),
+            bText[0],
+            bText[1],
+          );
+        } else await sendMessage(id, 'Unknown command!');
     }
 
     return res.send();
@@ -75,17 +115,3 @@ app.listen(PORT, async () => {
     console.log(error);
   }
 });
-
-// case '/BTC':
-//   await axios.post(`${TELEGRAM_API}/sendMessage`, {
-//     chat_id: id,
-//     text: 'HELLLOOOO!',
-//     reply_markup: {
-//       inline_keyboard: [
-//         [
-//           { text: 'Inline B!', callback_data: 'hello!' },
-//         ],
-//       ],
-//     },
-//   });
-//   break;

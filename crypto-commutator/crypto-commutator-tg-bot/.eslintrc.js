@@ -42,5 +42,6 @@ module.exports = {
     'object-curly-newline': 0,
     'no-return-await': 0,
     'no-plusplus': 0,
+    'prefer-destructuring': 0,
   },
 };
