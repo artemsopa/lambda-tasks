@@ -40,5 +40,7 @@ module.exports = {
     'lines-between-class-members': 0,
     'max-classes-per-file': 0,
     'object-curly-newline': 0,
+    'no-return-await': 0,
+    'no-plusplus': 0,
   },
 };
