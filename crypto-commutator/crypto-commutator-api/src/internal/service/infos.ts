@@ -32,6 +32,7 @@ class InfosService implements Infos {
       throw ApiError.badRequest('Invalid cryptocurrency name! Cannot get info!');
     }
     const prices = infosRepo
+      .sort((a, b) => b.time - a.time)
       .map((item: CryptoInfo, index: number) => new CoinPrice(this.times[index], getAvgPrice([
         item.cmValue,
         item.cbValue,
