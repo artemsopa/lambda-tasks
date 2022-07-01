@@ -4,7 +4,7 @@ import { CryptoInfos } from '../repository/repository';
 import CryptoInfo from '../domain/cryptoInfo';
 
 class InfosService implements Infos {
-  private times: string[] = ['now', '30m', '1h', '3h', '6h', '12h', '24h'];
+  private times: string[] = ['1m', '30m', '1h', '3h', '6h', '12h', '24h'];
   constructor(private infosRepo: CryptoInfos, private axios: AxiosInstance, private urls: Urls) {
     this.infosRepo = infosRepo;
     this.axios = axios;
