@@ -35,6 +35,7 @@ interface CoinPrices {
 const getTime = (str: string) => {
   const symbol = str.slice(-1);
   if (str === '1m') return '1 minure ago:';
+  if (str === '1h') return '1 hour ago:';
   if (symbol === 'm') return `${str.slice(0, -1)} minutes ago:`;
   if (symbol === 'h') return `${str.slice(0, -1)} hours ago:`;
   return str;
