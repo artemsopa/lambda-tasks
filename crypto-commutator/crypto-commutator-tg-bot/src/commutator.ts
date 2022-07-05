@@ -2,7 +2,7 @@ import axios from 'axios';
 
 interface InfoCoin {
   name: string;
-  avgPrice: number;
+  price: number;
 }
 
 const getStr = (str: string, length: number) => {
@@ -17,7 +17,7 @@ const getStr = (str: string, length: number) => {
 const formatList = (list: InfoCoin[]) => {
   let str = '';
   list.forEach((item: InfoCoin) => {
-    str += `⠀🔐 /${item.name} \n⠀💸 ${item.avgPrice.toFixed(2)}$\n-----------------\n`;
+    str += `⠀🔐 /${item.name} \n⠀💸 ${item.price.toFixed(2)}$\n-----------------\n`;
   });
   return str;
 };
