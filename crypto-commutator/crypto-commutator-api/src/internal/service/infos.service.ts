@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios';
+import { DateTime } from 'luxon';
 import { ApiError, InfoCoin, IInfosService, PushCoin, ResCoin, Urls, CoinPrices, CoinPrice, getAvgPrice } from './service';
 import { IInfosRepo } from '../repository/repository';
 import Info from '../entities/info';
@@ -88,7 +89,7 @@ class InfosService implements IInfosService {
             coinStatsCoin.price,
             kucoinCoin.price,
             coinPaprikaCoin.price,
-            Date.now(),
+            DateTime.now().toMillis(),
           ),
         );
         rank += 1;

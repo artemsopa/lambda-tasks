@@ -1,10 +1,7 @@
 import { Between, DataSource, In, Repository } from 'typeorm';
+import { DateTime } from 'luxon';
 import { IInfosRepo } from './repository';
 import Info from '../entities/info';
-
-const MIN_5 = 5 * 60 * 1000;
-const MIN_30 = 30 * 60 * 1000;
-const HOUR_1 = 60 * 60 * 1000;
 
 class InfosRepo implements IInfosRepo {
   repo: Repository<Info>;
@@ -14,10 +11,10 @@ class InfosRepo implements IInfosRepo {
   }
 
   async findRecent(): Promise<Info[]> {
-    const timestamp = Date.now();
+    const timestamp = DateTime.now();
     const infos = await this.repo.find({
       where: {
-        time: Between(timestamp - MIN_5, timestamp),
+        time: Between(timestamp.minus({ minutes: 5 }).toMillis(), timestamp.toMillis()),
       },
       order: {
         rank: 'ASC',
@@ -27,32 +24,66 @@ class InfosRepo implements IInfosRepo {
   }
 
   async findAllByNames(names: string[]): Promise<Info[]> {
-    const timestamp = Date.now();
+    const timestamp = DateTime.now();
     const infos = await this.repo.find({
       where: {
         name: In(names),
-        time: Between(timestamp - MIN_5, timestamp),
+        time: Between(timestamp.minus({ minutes: 5 }).toMillis(), timestamp.toMillis()),
       },
       order: {
         rank: 'ASC',
       },
     });
-    console.log(infos);
     return infos;
   }
 
   async findOneByName(name: string): Promise<Info[]> {
-    const timestamp = Date.now();
+    const timestamp = DateTime.now();
     const infos = await this.repo.find({
       where:
       [
-        { name, time: Between(timestamp - MIN_5, timestamp) },
-        { name, time: Between(timestamp - MIN_30 - MIN_5, timestamp - MIN_30) },
-        { name, time: Between(timestamp - HOUR_1 - MIN_5, timestamp - HOUR_1) },
-        { name, time: Between(timestamp - 3 * HOUR_1 - MIN_5, timestamp - 3 * HOUR_1) },
-        { name, time: Between(timestamp - 6 * HOUR_1 - MIN_5, timestamp - 6 * HOUR_1) },
-        { name, time: Between(timestamp - 12 * HOUR_1 - MIN_5, timestamp - 12 * HOUR_1) },
-        { name, time: Between(timestamp - 24 * HOUR_1 - MIN_5, timestamp - 24 * HOUR_1) },
+        { name,
+          time: Between(
+            timestamp.minus({ minutes: 5 }).toMillis(),
+            timestamp.toMillis(),
+          ),
+        },
+        { name,
+          time: Between(
+            timestamp.minus({ minutes: 35 }).toMillis(),
+            timestamp.minus({ minutes: 30 }).toMillis(),
+          ),
+        },
+        { name,
+          time: Between(
+            timestamp.minus({ hours: 1, minutes: 5 }).toMillis(),
+            timestamp.minus({ hours: 1 }).toMillis(),
+          ),
+        },
+        { name,
+          time: Between(
+            timestamp.minus({ hours: 3, minutes: 5 }).toMillis(),
+            timestamp.minus({ hours: 3 }).toMillis(),
+          ),
+        },
+        { name,
+          time: Between(
+            timestamp.minus({ hours: 6, minutes: 5 }).toMillis(),
+            timestamp.minus({ hours: 6 }).toMillis(),
+          ),
+        },
+        { name,
+          time: Between(
+            timestamp.minus({ hours: 12, minutes: 5 }).toMillis(),
+            timestamp.minus({ hours: 12 }).toMillis(),
+          ),
+        },
+        { name,
+          time: Between(
+            timestamp.minus({ hours: 24, minutes: 5 }).toMillis(),
+            timestamp.minus({ hours: 24 }).toMillis(),
+          ),
+        },
       ],
       order: {
         rank: 'ASC',
