@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { IFavouritesService } from '../../../service/service';
 
-class FavouriteRoutes {
+class FavouriteRoute {
   constructor(private favService: IFavouritesService) {
     this.favService = favService;
   }
@@ -63,4 +63,4 @@ class FavouriteRoutes {
   }
 }
 
-export default FavouriteRoutes;
+export default FavouriteRoute;

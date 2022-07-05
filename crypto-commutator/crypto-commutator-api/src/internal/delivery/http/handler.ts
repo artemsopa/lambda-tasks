@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Services from '../../service/service';
-import InfoRoutes from './v1/info';
-import FavouriteRoutes from './v1/favoutire';
+import InfoRoute from './v1/info.route';
+import FavouriteRoute from './v1/favourite.route';
 
 class Handler {
   constructor(private services: Services) {
@@ -16,8 +16,8 @@ class Handler {
 
   private initV1Routes() {
     const router = Router();
-    router.use('/infos', new InfoRoutes(this.services.infos).initRoutes());
-    router.use('/favs', new FavouriteRoutes(this.services.favs).initRoutes());
+    router.use('/infos', new InfoRoute(this.services.infos).initRoutes());
+    router.use('/favs', new FavouriteRoute(this.services.favs).initRoutes());
     return router;
   }
 }

@@ -1,7 +1,7 @@
 import express, { Express, Router } from 'express';
 import Services from '../service/service';
 import Handler from './http/handler';
-import errorMiddleware from './middlewares/error';
+import errorMiddleware from './middlewares/error.middleware';
 
 class Server {
   constructor(private services: Services, private port: number) {
