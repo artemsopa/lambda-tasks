@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { Favs } from '../../../service/service';
+import { IFavouritesService } from '../../../service/service';
 
 class FavouriteRoutes {
-  constructor(private favService: Favs) {
+  constructor(private favService: IFavouritesService) {
     this.favService = favService;
   }
 
@@ -22,7 +22,7 @@ class FavouriteRoutes {
           message: 'Invalid user ID!',
         });
       }
-      res.status(200).json(await this.favService.getAllFavs(Number(idTg)));
+      res.status(200).json(await this.favService.getAllFavourites(Number(idTg)));
     } catch (error) {
       next(error);
     }
@@ -36,7 +36,7 @@ class FavouriteRoutes {
           message: 'Invalid user ID or cryptocurrency name!',
         });
       }
-      await this.favService.saveFav(id, name);
+      await this.favService.saveFavourite(id, name);
       res.status(200).json({
         message: 'Favourite created!',
       });
@@ -53,7 +53,7 @@ class FavouriteRoutes {
           message: 'Invalid user ID or cryptocurrency name!',
         });
       }
-      await this.favService.removeFav(Number(id), String(name));
+      await this.favService.removeFavourite(Number(id), String(name));
       res.status(200).json({
         message: 'Favourite deleted!',
       });

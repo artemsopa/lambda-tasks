@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { Infos } from '../../../service/service';
+import { IInfosService } from '../../../service/service';
 
 class InfoRoutes {
-  constructor(private infoService: Infos) {
+  constructor(private infoService: IInfosService) {
     this.infoService = infoService;
   }
 

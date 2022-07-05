@@ -1,7 +1,7 @@
 import { AxiosInstance } from 'axios';
 import Repositories from '../repository/repository';
-import FavsService from './favs';
-import InfosService from './infos';
+import FavouritesService from './favourites.service';
+import InfosService from './infos.service';
 
 export class ResCoin {
   name: string;
@@ -16,44 +16,44 @@ export class ResCoin {
 export class PushCoin {
   name: string;
   rank: number;
-  cm: number;
-  cb: number;
-  cs: number;
-  kc: number;
-  cp: number;
+  marketCap: number;
+  coinBase: number;
+  coinStats: number;
+  kucoin: number;
+  coinPaprika: number;
   time: number;
 
   constructor(
     name: string,
     rank: number,
-    cm: number,
-    cb: number,
-    cs: number,
-    kc: number,
-    cp: number,
+    marketCap: number,
+    coinBase: number,
+    coinStats: number,
+    kucoin: number,
+    coinPaprika: number,
     time: number,
   ) {
     this.name = name;
     this.rank = rank;
-    this.cm = cm;
-    this.cb = cb;
-    this.cs = cs;
-    this.kc = kc;
-    this.cp = cp;
+    this.marketCap = marketCap;
+    this.coinBase = coinBase;
+    this.coinStats = coinStats;
+    this.kucoin = kucoin;
+    this.coinPaprika = coinPaprika;
     this.time = time;
   }
 }
 
 export class InfoCoin {
   name: string;
-  avgPrice: number;
+  price: number;
 
   constructor(
     name: string,
-    avgPrice: number,
+    price: number,
   ) {
     this.name = name;
-    this.avgPrice = avgPrice;
+    this.price = price;
   }
 }
 
@@ -75,45 +75,45 @@ export class CoinPrices {
   }
 }
 
-export interface Infos {
+export interface IInfosService {
   getRecentInfos(): Promise<InfoCoin[]>;
   getInfosByName(name: string): Promise<CoinPrices>;
   saveInfos(): Promise<void>;
 }
 
-export interface Favs {
-  getAllFavs(idTg: number): Promise<InfoCoin[]>;
-  saveFav(idTg: number, name: string): Promise<void>;
-  removeFav(idTg: number, name: string): Promise<void>;
+export interface IFavouritesService {
+  getAllFavourites(idTg: number): Promise<InfoCoin[]>;
+  saveFavourite(idTg: number, name: string): Promise<void>;
+  removeFavourite(idTg: number, name: string): Promise<void>;
 }
 
 export class Urls {
-  cm: string;
-  cbCoins: string;
-  cbPrices: string;
-  cs: string;
-  kc: string;
-  cp: string;
+  marketCap: string;
+  coinBaseCoins: string;
+  coinBasePrices: string;
+  coinStats: string;
+  kucoin: string;
+  coinPaprika: string;
   constructor(
-    cm: string,
-    cbCoins: string,
-    cbPrices: string,
-    cs: string,
-    kc: string,
-    cp: string,
+    marketCap: string,
+    coinBaseCoins: string,
+    coinBasePrices: string,
+    coinStats: string,
+    kucoin: string,
+    coinPaprika: string,
   ) {
-    this.cm = cm;
-    this.cbCoins = cbCoins;
-    this.cbPrices = cbPrices;
-    this.cs = cs;
-    this.kc = kc;
-    this.cp = cp;
+    this.marketCap = marketCap;
+    this.coinBaseCoins = coinBaseCoins;
+    this.coinBasePrices = coinBasePrices;
+    this.coinStats = coinStats;
+    this.kucoin = kucoin;
+    this.coinPaprika = coinPaprika;
   }
 }
 
 export const getAvgPrice = (arr: number[]) => arr.reduce((sum, item) => sum + item, 0) / arr.length;
 
-export default class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
   errors: any[];
 
@@ -143,11 +143,13 @@ export class Deps {
   }
 }
 
-export class Services {
-  infos: Infos;
-  favs: Favs;
+class Services {
+  infos: IInfosService;
+  favs: IFavouritesService;
   constructor(deps: Deps) {
     this.infos = new InfosService(deps.repos.infos, deps.axios, deps.urls);
-    this.favs = new FavsService(deps.repos.favs, deps.repos.infos);
+    this.favs = new FavouritesService(deps.repos.favs, deps.repos.infos);
   }
 }
+
+export default Services;

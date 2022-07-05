@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Services } from '../../service/service';
+import Services from '../../service/service';
 import InfoRoutes from './v1/info';
 import FavouriteRoutes from './v1/favoutire';
 

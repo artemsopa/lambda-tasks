@@ -1,11 +1,11 @@
 import axios from 'axios';
 import initConfig from '../configs/config';
 import Repositories from '../internal/repository/repository';
-import { Deps, Services, Urls } from '../internal/service/service';
+import Services, { Deps, Urls } from '../internal/service/service';
 import initDB from '../pkg/database/mysql';
 import Server from '../internal/delivery/server';
-import 'reflect-metadata';
 import startTask from '../pkg/cron/cron';
+import 'reflect-metadata';
 
 export default async function run() {
   try {
@@ -21,12 +21,12 @@ export default async function run() {
 
     const repos = new Repositories(db);
     const services = new Services(new Deps(repos, axios.create(), new Urls(
-      configs.urls.cm,
-      configs.urls.cbCoins,
-      configs.urls.cbPrices,
-      configs.urls.cs,
-      configs.urls.kc,
-      configs.urls.cp,
+      configs.urls.marketCap,
+      configs.urls.coinBaseCoins,
+      configs.urls.coinBasePrices,
+      configs.urls.coinStats,
+      configs.urls.kucoin,
+      configs.urls.coinPaprika,
     )));
 
     new Server(services, configs.port).initServer();

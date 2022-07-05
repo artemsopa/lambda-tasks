@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export default class CryptoFav {
+export default class Favourite {
     @PrimaryGeneratedColumn('uuid')
       id: string;
 

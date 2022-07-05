@@ -22,26 +22,26 @@ class MySqlConfig {
 }
 
 class CryptoUrls {
-  cm: string;
-  cbCoins: string;
-  cbPrices: string;
-  cs: string;
-  kc: string;
-  cp: string;
+  marketCap: string;
+  coinBaseCoins: string;
+  coinBasePrices: string;
+  coinStats: string;
+  kucoin: string;
+  coinPaprika: string;
   constructor(
-    cm: string,
-    cbCoins: string,
-    cbPrices: string,
-    cs: string,
-    kc: string,
-    cp: string,
+    marketCap: string,
+    coinBaseCoins: string,
+    coinBasePrices: string,
+    coinStats: string,
+    kucoin: string,
+    coinPaprika: string,
   ) {
-    this.cm = cm;
-    this.cbCoins = cbCoins;
-    this.cbPrices = cbPrices;
-    this.cs = cs;
-    this.kc = kc;
-    this.cp = cp;
+    this.marketCap = marketCap;
+    this.coinBaseCoins = coinBaseCoins;
+    this.coinBasePrices = coinBasePrices;
+    this.coinStats = coinStats;
+    this.kucoin = kucoin;
+    this.coinPaprika = coinPaprika;
   }
 }
 

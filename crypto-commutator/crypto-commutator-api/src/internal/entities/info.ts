@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export default class CryptoInfo {
+export default class Info {
     @PrimaryGeneratedColumn('uuid')
       id: string;
 
@@ -12,19 +12,19 @@ export default class CryptoInfo {
       rank: number;
 
     @Column('double')
-      cmValue: number;
+      marketCapValue: number;
 
     @Column('double')
-      cbValue: number;
+      coinBaseValue: number;
 
     @Column('double')
-      csValue: number;
+      coinStatsValue: number;
 
     @Column('double')
-      kcValue: number;
+      kucoinValue: number;
 
     @Column('double')
-      cpValue: number;
+      coinPaprikaValue: number;
 
     @Column('bigint')
       time: number;
@@ -32,20 +32,20 @@ export default class CryptoInfo {
     constructor(
       name: string,
       rank: number,
-      cmValue: number,
-      cbValue: number,
-      csValue: number,
-      kcValue: number,
+      marketCapValue: number,
+      coinBaseValue: number,
+      coinStatsValue: number,
+      kucoinValue: number,
       cpValue: number,
       time: number,
     ) {
       this.name = name;
       this.rank = rank;
-      this.cmValue = cmValue;
-      this.cbValue = cbValue;
-      this.csValue = csValue;
-      this.kcValue = kcValue;
-      this.cpValue = cpValue;
+      this.marketCapValue = marketCapValue;
+      this.coinBaseValue = coinBaseValue;
+      this.coinStatsValue = coinStatsValue;
+      this.kucoinValue = kucoinValue;
+      this.coinPaprikaValue = cpValue;
       this.time = time;
     }
 }

@@ -1,19 +1,19 @@
 import { Between, DataSource, In, Repository } from 'typeorm';
-import { CryptoInfos } from './repository';
-import CryptoInfo from '../domain/cryptoInfo';
+import { IInfosRepo } from './repository';
+import Info from '../entities/info';
 
 const MIN_5 = 5 * 60 * 1000;
 const MIN_30 = 30 * 60 * 1000;
 const HOUR_1 = 60 * 60 * 1000;
 
-class CryptoInfosRepo implements CryptoInfos {
-  repo: Repository<CryptoInfo>;
+class InfosRepo implements IInfosRepo {
+  repo: Repository<Info>;
 
   constructor(ds: DataSource) {
-    this.repo = ds.getRepository(CryptoInfo);
+    this.repo = ds.getRepository(Info);
   }
 
-  async findRecentInfos(): Promise<CryptoInfo[]> {
+  async findRecent(): Promise<Info[]> {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where: {
@@ -26,7 +26,7 @@ class CryptoInfosRepo implements CryptoInfos {
     return infos;
   }
 
-  async findInfosByNames(names: string[]): Promise<CryptoInfo[]> {
+  async findAllByNames(names: string[]): Promise<Info[]> {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where: {
@@ -41,7 +41,7 @@ class CryptoInfosRepo implements CryptoInfos {
     return infos;
   }
 
-  async findRecentPricesByName(name: string): Promise<CryptoInfo[]> {
+  async findOneByName(name: string): Promise<Info[]> {
     const timestamp = Date.now();
     const infos = await this.repo.find({
       where:
@@ -61,9 +61,9 @@ class CryptoInfosRepo implements CryptoInfos {
     return infos;
   }
 
-  async saveInfos(infos: CryptoInfo[]): Promise<void> {
+  async save(infos: Info[]): Promise<void> {
     await this.repo.save(infos);
   }
 }
 
-export default CryptoInfosRepo;
+export default InfosRepo;

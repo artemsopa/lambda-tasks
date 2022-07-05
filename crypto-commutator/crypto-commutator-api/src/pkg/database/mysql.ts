@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import CryptoInfo from '../../internal/domain/cryptoInfo';
-import CryptoFav from '../../internal/domain/cryptoFav';
+import Info from '../../internal/entities/info';
+import Favourite from '../../internal/entities/favourite';
 
 const initDB = async (
   host: string,
@@ -16,7 +16,7 @@ const initDB = async (
     username,
     password,
     database,
-    entities: [CryptoInfo, CryptoFav],
+    entities: [Info, Favourite],
     synchronize: true,
     logging: true,
   });

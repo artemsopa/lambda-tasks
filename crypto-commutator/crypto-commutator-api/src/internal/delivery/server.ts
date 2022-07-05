@@ -1,5 +1,5 @@
 import express, { Express, Router } from 'express';
-import { Services } from '../service/service';
+import Services from '../service/service';
 import Handler from './http/handler';
 import errorMiddleware from './middlewares/error';
 
