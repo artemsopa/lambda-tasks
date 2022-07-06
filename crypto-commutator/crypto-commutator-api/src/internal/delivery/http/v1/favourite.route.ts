@@ -19,7 +19,7 @@ class FavouriteRoute {
       const idTg = req.params.id;
       if (!idTg) {
         res.status(400).json({
-          message: 'Invalid parameter!',
+          message: 'Invalid user ID!',
         });
       }
       res.status(200).json(await this.favService.getAllFavourites(Number(idTg)));
@@ -33,12 +33,12 @@ class FavouriteRoute {
       const { id, name } = req.body;
       if (!id || !name) {
         res.status(400).json({
-          message: 'Invalid parameters!',
+          message: 'Invalid user ID or cryptocurrency name!',
         });
       }
       await this.favService.saveFavourite(id, name);
-      res.status(200).json({
-        message: 'Favourite created!',
+      res.status(201).json({
+        message: `${String(name).toUpperCase()} added to the favourite list!`,
       });
     } catch (error) {
       next(error);
@@ -50,12 +50,12 @@ class FavouriteRoute {
       const { id, name } = req.query;
       if (!id || !name) {
         res.status(400).json({
-          message: 'Invalid parameters!',
+          message: 'Invalid user ID or cryptocurrency name!',
         });
       }
       await this.favService.removeFavourite(Number(id), String(name));
       res.status(200).json({
-        message: 'Favourite deleted!',
+        message: `${String(name).toUpperCase()} deleted from the favourite list!`,
       });
     } catch (error) {
       next(error);
