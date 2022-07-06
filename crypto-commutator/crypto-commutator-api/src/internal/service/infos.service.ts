@@ -30,7 +30,7 @@ class InfosService implements IInfosService {
   async getInfosByName(name: string): Promise<CoinPrices> {
     const infosRepo = await this.infosRepo.findOneByName(name);
     if (infosRepo.length === 0) {
-      throw ApiError.badRequest('Invalid cryptocurrency name! Cannot get info!');
+      throw ApiError.badRequest(`Invalid cryptocurrency name! Cannot get info about ${name.toUpperCase()}!`);
     }
     const prices = infosRepo
       .sort((a, b) => b.time - a.time)

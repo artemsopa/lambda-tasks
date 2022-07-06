@@ -19,7 +19,7 @@ class FavouriteRoute {
       const idTg = req.params.id;
       if (!idTg) {
         res.status(400).json({
-          message: 'Invalid user ID!',
+          message: 'Invalid parameter!',
         });
       }
       res.status(200).json(await this.favService.getAllFavourites(Number(idTg)));
@@ -33,7 +33,7 @@ class FavouriteRoute {
       const { id, name } = req.body;
       if (!id || !name) {
         res.status(400).json({
-          message: 'Invalid user ID or cryptocurrency name!',
+          message: 'Invalid parameters!',
         });
       }
       await this.favService.saveFavourite(id, name);
@@ -50,7 +50,7 @@ class FavouriteRoute {
       const { id, name } = req.query;
       if (!id || !name) {
         res.status(400).json({
-          message: 'Invalid user ID or cryptocurrency name!',
+          message: 'Invalid parameters!',
         });
       }
       await this.favService.removeFavourite(Number(id), String(name));

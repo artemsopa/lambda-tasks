@@ -28,11 +28,11 @@ class FavouritesService implements IFavouritesService {
   async saveFavourite(idTg: number, name: string): Promise<void> {
     const infoRepo = await this.favsRepo.findOne(idTg, name);
     if (infoRepo) {
-      throw ApiError.badRequest('Favourite already exists!');
+      throw ApiError.badRequest(`${name.toUpperCase()} in the favourite list already!`);
     }
     const info = await this.infosRepo.findAllByNames([name]);
     if (info.length === 0) {
-      throw ApiError.badRequest('Unknown cryptocurrency!');
+      throw ApiError.badRequest(`${name.toUpperCase()} is unknown cryptocurrency!`);
     }
     await this.favsRepo.save(new Favourite(idTg, name));
   }
@@ -40,7 +40,7 @@ class FavouritesService implements IFavouritesService {
   async removeFavourite(idTg: number, name: string): Promise<void> {
     const infoRepo = await this.favsRepo.findOne(idTg, name);
     if (!infoRepo) {
-      throw ApiError.badRequest('Favourite does not exist!');
+      throw ApiError.badRequest(`${name.toUpperCase()} is not in the favourite list!`);
     }
     await this.favsRepo.delete(idTg, name);
   }
