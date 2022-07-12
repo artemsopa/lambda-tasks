@@ -1,0 +1,20 @@
+org: artemsopa
+app: aws-serverless
+service: aws-serverless
+frameworkVersion: '3'
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  hello:
+    handler: src/index.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
