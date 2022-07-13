@@ -4,16 +4,24 @@ import Joi from 'joi';
 import middy from '@middy/core';
 // import validator from '@middy/validator';
 
-const nameSchema = Joi.string().min(3).max(20);
+const nameSchema = Joi.object({
+  name: Joi.string()
+    .min(3)
+    .max(30)
+    .required(),
+});
 
 const hello = async (event: APIGatewayEvent) => {
-  const { error, value } = nameSchema.validate(event.queryStringParameters?.name);
+  const { error, value } = nameSchema.validate(event.queryStringParameters);
   if (error) {
-    return Boom.badData(error.message);
+    return {
+      statusCode: 422,
+      body: JSON.stringify(Boom.badData(error.message).output),
+    };
   }
   return {
     statusCode: 200,
-    body: `Hello, ${value}!`,
+    body: `Hello, ${value.name}!`,
   };
 };
 
