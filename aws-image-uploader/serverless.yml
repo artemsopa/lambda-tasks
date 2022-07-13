@@ -1,0 +1,21 @@
+org: artemsopa
+app: aws-image-uploader
+service: aws-image-uploader
+frameworkVersion: '3'
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-west-2
+
+functions:
+  hello:
+    handler: src/index.handler
+    events:
+      - http:
+          path: /
+          method: get
