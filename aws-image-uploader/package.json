@@ -5,7 +5,9 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "serverless offline start --noTimeout",
-    "build": "serverless package"
+    "build": "serverless package",
+    "deploy": "sls deploy",
+    "deploy-prod": "sls deploy --stage prod"
   },
   "keywords": [],
   "author": "",

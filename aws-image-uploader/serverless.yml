@@ -10,12 +10,37 @@ plugins:
 provider:
   name: aws
   runtime: nodejs14.x
-  region: us-west-2
+  region: eu-central-1
+  stage: ${opt:stage, 'dev'}
 
 functions:
-  hello:
-    handler: src/index.handler
+  signIn:
+    handler: ./src/index.signIn
     events:
       - http:
-          path: /
+          path: /auth/sign-in
+          method: post
+  signUp:
+    handler: ./src/index.signUp
+    events:
+      - http:
+          path: /auth/sign-up
+          method: post
+  getAllImages:
+    handler: ./src/index.getAllImages
+    events:
+      - http:
+          path: /bucket
           method: get
+  uploadImage:
+    handler: ./src/index.uploadImage
+    events:
+      - http:
+          path: /bucket
+          method: post
+  deleteImage:
+    handler: ./src/index.deleteImage
+    events:
+      - http:
+          path: /bucket
+          method: delete
