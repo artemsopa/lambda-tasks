@@ -1,8 +1,10 @@
 import { APIGatewayEvent } from 'aws-lambda';
-import Boom from '@hapi/boom';
-import Joi from 'joi';
 import middy from '@middy/core';
-// import validator from '@middy/validator';
+import validator from '@middy/validator';
+import JSONErrorHandlerMiddleware from 'middy-middleware-json-error-handler';
+import httpEventNormalizer from '@middy/http-event-normalizer';
+import Joi from '@hapi/joi';
+import Boom from '@hapi/boom';
 
 const nameSchema = Joi.object({
   name: Joi.string()
@@ -25,4 +27,25 @@ const hello = async (event: APIGatewayEvent) => {
   };
 };
 
-export const handler = middy(hello);
+const inputSchema = {
+  type: 'object',
+  required: ['queryStringParameters'],
+  properties: {
+    queryStringParameters: {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: {
+          type: 'string',
+        },
+      },
+    },
+  },
+};
+
+export const handler = middy(hello)
+  .use(JSONErrorHandlerMiddleware())
+  .use(httpEventNormalizer())
+  .use(validator({
+    inputSchema,
+  }));
