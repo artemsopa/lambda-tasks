@@ -3,6 +3,8 @@ import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
 import AuthService from '../service/auth.service';
 import BucketService from '../service/bucket.service';
+import { Deps } from '../service/service';
+import Repository from '../respository/repository';
 
 export class Response {
   statusCode: number;
@@ -30,8 +32,11 @@ class Handler {
   bucket: IBucketHandler;
 
   constructor() {
-    this.auth = new AuthHandler(new AuthService());
-    this.bucket = new BucketHandler(new BucketService());
+    const repos = new Repository();
+    const deps = new Deps(repos);
+
+    this.auth = new AuthHandler(new AuthService(deps.repos.users));
+    this.bucket = new BucketHandler(new BucketService(deps.repos.images));
   }
 }
 
