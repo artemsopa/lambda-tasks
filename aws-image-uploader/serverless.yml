@@ -12,6 +12,8 @@ provider:
   runtime: nodejs14.x
   region: eu-central-1
   stage: ${opt:stage, 'dev'}
+  environment:
+    tableName: ${self:custom.tableName}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -27,9 +29,6 @@ provider:
 
 custom:
   tableName: image-uploader-${self:provider.stage}
-
-environment:
-  tableName: ${self:custom.tableName}
 
 functions:
   signIn:
