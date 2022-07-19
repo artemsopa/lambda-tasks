@@ -59,8 +59,12 @@ functions:
     handler: ./src/index.deleteImage
     events:
       - http:
-          path: /bucket
+          path: /bucket/{id}
           method: delete
+          request:
+            parameters:
+              paths:
+                id: true
 
 resources:
   Resources:

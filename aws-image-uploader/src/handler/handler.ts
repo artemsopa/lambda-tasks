@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
+import dotenv from 'dotenv';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
 import AuthService from '../service/auth.service';
@@ -33,8 +34,12 @@ class Handler {
   bucket: IBucketHandler;
 
   constructor() {
+    dotenv.config();
+    const { tableName } = process.env;
+    if (!tableName) throw new Error('ERROR! Unknown DynamoDB table!');
+
     const db = new AWS.DynamoDB.DocumentClient();
-    const repos = new Repository(db);
+    const repos = new Repository(db, tableName);
     const deps = new Deps(repos);
 
     this.auth = new AuthHandler(new AuthService(deps.repos.users));

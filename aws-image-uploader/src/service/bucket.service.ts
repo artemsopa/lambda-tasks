@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import { ImageInput } from '../models/image';
 import { IImagesRepo } from '../respository/repository';
 import { IBucketService } from './service';
 
@@ -7,16 +8,16 @@ class BucketService implements IBucketService {
     this.imagesRepo = imagesRepo;
   }
 
-  getAllImages() {
-    return this.imagesRepo.getAll();
+  async getAllImages(PK: string) {
+    return await this.imagesRepo.getAll(PK);
   }
 
-  uploadImage() {
-    return this.imagesRepo.create();
+  async uploadImage(PK: string, image: ImageInput) {
+    await this.imagesRepo.create(PK, image);
   }
 
-  deleteImage() {
-    return this.imagesRepo.delete();
+  async deleteImage(PK: string, SK: string) {
+    await this.imagesRepo.delete(PK, SK);
   }
 }
 

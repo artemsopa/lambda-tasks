@@ -8,13 +8,23 @@ class AuthHandler implements IAuthHandler {
   }
 
   async signIn(event: APIGatewayEvent) {
-    if (event) console.log('Event exists');
-    return new Response(200, JSON.stringify(this.authService.signIn()));
+    const { email, password } = JSON.parse(event.body || '');
+    if (!email || !password) {
+      return new Response(400, JSON.stringify({
+        message: 'Invalid credentials!',
+      }));
+    }
+    return new Response(200, JSON.stringify(await this.authService.signIn(email, password)));
   }
 
   async signUp(event: APIGatewayEvent) {
-    if (event) console.log('Event exists');
-    return new Response(201, JSON.stringify(this.authService.signUp()));
+    const { email, password, confirm } = JSON.parse(event.body || '');
+    if (!email || !password) {
+      return new Response(400, JSON.stringify({
+        message: 'Invalid credentials!',
+      }));
+    }
+    return new Response(201, JSON.stringify(await this.authService.signUp(email, password, confirm)));
   }
 }
 

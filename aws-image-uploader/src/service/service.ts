@@ -1,16 +1,17 @@
 import AuthService from './auth.service';
 import BucketService from './bucket.service';
 import Repository from '../respository/repository';
+import { Image, ImageInput } from '../models/image';
 
 export interface IAuthService {
-  signIn(): any;
-  signUp(): any;
+  signIn(email: string, password: string): any;
+  signUp(email: string, password: string, confirm: string): any;
 }
 
 export interface IBucketService {
-  getAllImages(): any;
-  uploadImage(): any;
-  deleteImage(): any;
+  getAllImages(PK: string): Promise<Image[]>;
+  uploadImage(PK: string, image: ImageInput): Promise<void>;
+  deleteImage(PK: string, SK: string): Promise<void>;
 }
 
 export class Deps {
