@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk';
 import UsersRepo from './users.repo';
 import ImagesRepo from './images.repo';
 
@@ -15,8 +16,8 @@ export interface IImagesRepo {
 export default class Repository {
   users: IUsersRepo;
   images: IImagesRepo;
-  constructor() {
-    this.users = new UsersRepo();
-    this.images = new ImagesRepo();
+  constructor(db: AWS.DynamoDB.DocumentClient) {
+    this.users = new UsersRepo(db);
+    this.images = new ImagesRepo(db);
   }
 }

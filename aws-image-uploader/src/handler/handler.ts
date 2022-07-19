@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
@@ -32,7 +33,8 @@ class Handler {
   bucket: IBucketHandler;
 
   constructor() {
-    const repos = new Repository();
+    const db = new AWS.DynamoDB.DocumentClient();
+    const repos = new Repository(db);
     const deps = new Deps(repos);
 
     this.auth = new AuthHandler(new AuthService(deps.repos.users));
