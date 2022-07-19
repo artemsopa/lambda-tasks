@@ -26,7 +26,7 @@ provider:
         - "Fn::GetAtt": [UploaderTable, Arn]
 
 custom:
-  tableName: image-uploader-${self:custom.stage}
+  tableName: image-uploader-${self:provider.stage}
 
 environment:
   tableName: ${self:custom.tableName}
