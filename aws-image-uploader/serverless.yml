@@ -1,7 +1,7 @@
 org: artemsopa
 app: aws-image-uploader
 service: aws-image-uploader
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 plugins:
   - serverless-webpack
@@ -12,6 +12,24 @@ provider:
   runtime: nodejs14.x
   region: eu-central-1
   stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [UploaderTable, Arn]
+
+custom:
+  tableName: image-uploader-${self:custom.stage}
+
+environment:
+  tableName: ${self:custom.tableName}
 
 functions:
   signIn:
@@ -44,3 +62,21 @@ functions:
       - http:
           path: /bucket
           method: delete
+
+resources:
+  Resources:
+    UploaderTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
