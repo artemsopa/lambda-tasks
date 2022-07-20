@@ -1,4 +1,5 @@
 import middy from '@middy/core';
+import httpJsonBodyParser from '@middy/http-json-body-parser';
 import handler from './handler/handler';
 
 export const signIn = middy(handler.auth.signIn.bind(handler.auth));

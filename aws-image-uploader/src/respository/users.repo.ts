@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import AWS from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
 import { IUsersRepo } from './repository';
@@ -10,33 +9,17 @@ class UsersRepo implements IUsersRepo {
     this.tableName = tableName;
   }
 
-  async getByEmail(email: string): Promise<User> {
+  async getByEmail(email: string): Promise<User | undefined> {
     const params = {
       TableName: this.tableName,
-      Key: {
-        SK: 'user',
-      },
-      Item: {
-        email,
-      },
-    };
-    const result = await this.db.get(params).promise();
-    return result.Item as User;
-  }
-
-  async getByCredentials(email: string, password: string): Promise<User> {
-    const params = {
-      TableName: this.tableName,
-      Key: {
-        SK: 'user',
-      },
-      Item: {
-        email,
-        password,
+      IndexName: 'UserEmail',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: {
+        ':email': email,
       },
     };
-    const result = await this.db.get(params).promise();
-    return result.Item as User;
+    const result = await this.db.query(params).promise();
+    return result?.Items ? result.Items[0] as User : undefined;
   }
 
   async create(user: UserInput): Promise<void> {

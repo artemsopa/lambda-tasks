@@ -2,6 +2,8 @@ import AuthService from './auth.service';
 import BucketService from './bucket.service';
 import Repository from '../respository/repository';
 import { Image, ImageInput } from '../models/image';
+import { AuthManager } from '../jwt/jwt.manager';
+import { PasswordHasher } from '../hasher/password.hasher';
 
 export interface IAuthService {
   signIn(email: string, password: string): any;
@@ -16,8 +18,12 @@ export interface IBucketService {
 
 export class Deps {
   repos: Repository;
-  constructor(repos: Repository) {
+  authManager: AuthManager;
+  hasher: PasswordHasher;
+  constructor(repos: Repository, authManager: AuthManager, hasher: PasswordHasher) {
     this.repos = repos;
+    this.authManager = authManager;
+    this.hasher = hasher;
   }
 }
 
@@ -26,7 +32,7 @@ export default class Service {
   bucket: IBucketService;
 
   constructor(deps: Deps) {
-    this.auth = new AuthService(deps.repos.users);
+    this.auth = new AuthService(deps.repos.users, deps.authManager, deps.hasher);
     this.bucket = new BucketService(deps.repos.images);
   }
 }

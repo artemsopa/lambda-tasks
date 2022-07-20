@@ -5,8 +5,7 @@ import { User, UserInput } from '../models/user';
 import { Image, ImageInput } from '../models/image';
 
 export interface IUsersRepo {
-  getByEmail(email: string): Promise<User>;
-  getByCredentials(email: string, password: string): Promise<User>;
+  getByEmail(email: string): Promise<User | undefined>;
   create(user: UserInput): Promise<void>;
 }
 

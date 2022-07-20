@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import AWS from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
 import { IImagesRepo } from './repository';

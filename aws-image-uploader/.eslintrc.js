@@ -15,6 +15,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'class-methods-use-this': 0,
     'no-return-await': 0,
     'max-classes-per-file': 0,
     'no-unused-vars': 0,

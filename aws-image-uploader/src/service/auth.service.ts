@@ -1,18 +1,26 @@
 import { IAuthService } from './service';
 import { IUsersRepo } from '../respository/repository';
 import { UserInput } from '../models/user';
+import { AuthManager } from '../jwt/jwt.manager';
+import { PasswordHasher } from '../hasher/password.hasher';
 
 class AuthService implements IAuthService {
-  constructor(private usersRepo: IUsersRepo) {
+  constructor(private usersRepo: IUsersRepo, private authManager: AuthManager, private hasher: PasswordHasher) {
     this.usersRepo = usersRepo;
+    this.authManager = authManager;
+    this.hasher = hasher;
   }
 
   async signIn(email: string, password: string) {
-    const user = await this.usersRepo.getByCredentials(email, password);
+    const user = await this.usersRepo.getByEmail(email);
     if (!user) {
-      throw new Error('ERROR! User doesn\'t exists');
+      throw new Error(`ERROR! User with email '${email}' doesn't exist!`);
     }
-    return user.PK;
+    const isPassEquals = await this.hasher.compare(password, user.password);
+    if (!isPassEquals) {
+      throw new Error('ERROR! Passwords missmatch!');
+    }
+    return this.authManager.newToken(user.PK);
   }
 
   async signUp(email: string, password: string, confirm: string) {
@@ -23,7 +31,8 @@ class AuthService implements IAuthService {
     if (user) {
       throw new Error(`ERROR! User with email '${email}' already exists!`);
     }
-    await this.usersRepo.create(new UserInput(email, password));
+    const hash = await this.hasher.hash(password);
+    await this.usersRepo.create(new UserInput(email, hash));
   }
 }
 

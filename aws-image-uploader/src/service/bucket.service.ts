@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import { ImageInput } from '../models/image';
 import { IImagesRepo } from '../respository/repository';
 import { IBucketService } from './service';

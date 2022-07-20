@@ -1,12 +1,12 @@
 import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
-import dotenv from 'dotenv';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
-import AuthService from '../service/auth.service';
-import BucketService from '../service/bucket.service';
-import { Deps } from '../service/service';
+import Service, { Deps } from '../service/service';
 import Repository from '../respository/repository';
+import { initConfigs } from '../configs/config';
+import { AuthManager } from '../jwt/jwt.manager';
+import { BcryptHasher } from '../hasher/password.hasher';
 
 export class Response {
   statusCode: number;
@@ -34,16 +34,17 @@ class Handler {
   bucket: IBucketHandler;
 
   constructor() {
-    dotenv.config();
-    const { tableName } = process.env;
-    if (!tableName) throw new Error('ERROR! Unknown DynamoDB table!');
+    const configs = initConfigs();
 
     const db = new AWS.DynamoDB.DocumentClient();
-    const repos = new Repository(db, tableName);
-    const deps = new Deps(repos);
+    const repos = new Repository(db, configs.tableName);
+    const authManager = new AuthManager(configs.auth.jwt.signingKey, configs.auth.jwt.tokenTTL);
+    const hasher = new BcryptHasher(configs.auth.passwordSalt);
+    const deps = new Deps(repos, authManager, hasher);
+    const services = new Service(deps);
 
-    this.auth = new AuthHandler(new AuthService(deps.repos.users));
-    this.bucket = new BucketHandler(new BucketService(deps.repos.images));
+    this.auth = new AuthHandler(services.auth);
+    this.bucket = new BucketHandler(services.bucket);
   }
 }
 

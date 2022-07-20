@@ -13,7 +13,10 @@ provider:
   region: eu-central-1
   stage: ${opt:stage, 'dev'}
   environment:
-    tableName: ${self:custom.tableName}
+    TABLE_NAME: ${self:custom.tableName}
+    SIGNING_KEY: 1239281783hshjdsehqi9
+    TOKEN_TTL: 1800
+    PASSWORD_SALT: 3
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -77,9 +80,18 @@ resources:
             AttributeType: S
           - AttributeName: SK
             AttributeType: S
+          - AttributeName: email
+            AttributeType: S
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
           - AttributeName: SK
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: UserEmail
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: "ALL"
         BillingMode: PAY_PER_REQUEST
