@@ -12,12 +12,22 @@ provider:
   runtime: nodejs14.x
   region: eu-central-1
   stage: ${opt:stage, 'dev'}
+  apiGateway:
+    binaryMediaTypes:
+      - 'multipart/form-data'
   environment:
     TABLE_NAME: ${self:custom.tableName}
+    BUCKET_NAME: ${self:custom.bucketName}
     SIGNING_KEY: 1239281783hshjdsehqi9
-    TOKEN_TTL: 1800
+    TOKEN_TTL: 1800000
     PASSWORD_SALT: 3
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+      Resource: { "Fn::Join": ["", ["arn:aws:s3:::${self:custom.bucketName}", "/*" ] ] }
     - Effect: Allow
       Action:
         - dynamodb:DescribeTable
@@ -31,7 +41,8 @@ provider:
         - "Fn::GetAtt": [UploaderTable, Arn]
 
 custom:
-  tableName: image-uploader-${self:provider.stage}
+  tableName: img-upldr-${self:provider.stage}
+  bucketName: img-upldr-${self:provider.stage}
 
 functions:
   signIn:
@@ -71,6 +82,21 @@ functions:
 
 resources:
   Resources:
+    UploaderBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - POST
+                - DELETE
+              MaxAge: 3000
     UploaderTable:
       Type: AWS::DynamoDB::Table
       Properties:

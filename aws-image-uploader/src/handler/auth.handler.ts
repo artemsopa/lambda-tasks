@@ -1,5 +1,5 @@
 import { APIGatewayEvent } from 'aws-lambda';
-import { IAuthHandler, Response } from './handler';
+import { IAuthHandler, Response, throwError } from './handler';
 import { IAuthService } from '../service/service';
 
 class AuthHandler implements IAuthHandler {
@@ -8,13 +8,17 @@ class AuthHandler implements IAuthHandler {
   }
 
   async signIn(event: APIGatewayEvent) {
-    const { email, password } = JSON.parse(event.body || '');
-    if (!email || !password) {
-      return new Response(400, JSON.stringify({
-        message: 'Invalid credentials!',
-      }));
+    try {
+      const { email, password } = JSON.parse(event.body || '');
+      if (!email || !password) {
+        return new Response(400, JSON.stringify({
+          message: 'Invalid credentials!',
+        }));
+      }
+      return new Response(200, JSON.stringify(await this.authService.signIn(email, password)));
+    } catch (error) {
+      return throwError(error);
     }
-    return new Response(200, JSON.stringify(await this.authService.signIn(email, password)));
   }
 
   async signUp(event: APIGatewayEvent) {
@@ -30,7 +34,7 @@ class AuthHandler implements IAuthHandler {
         message: 'Successfully registered!',
       }));
     } catch (error) {
-      return new Response(400, JSON.stringify({ error }));
+      return throwError(error);
     }
   }
 }

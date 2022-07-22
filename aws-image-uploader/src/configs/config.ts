@@ -20,9 +20,11 @@ class AuthConfig {
 
 export class Configs {
   tableName: string;
+  bucketName: string;
   auth: AuthConfig;
-  constructor(tableName: string, auth: AuthConfig) {
+  constructor(bucketName: string, tableName: string, auth: AuthConfig) {
     this.tableName = tableName;
+    this.bucketName = bucketName;
     this.auth = auth;
   }
 }
@@ -30,12 +32,12 @@ export class Configs {
 export const initConfigs = (): Configs => {
   dotenv.config();
   const {
-    TABLE_NAME, SIGNING_KEY, TOKEN_TTL, PASSWORD_SALT,
+    TABLE_NAME, BUCKET_NAME, SIGNING_KEY, TOKEN_TTL, PASSWORD_SALT,
   } = process.env;
 
-  if (!TABLE_NAME || !SIGNING_KEY || !TOKEN_TTL || !PASSWORD_SALT) {
+  if (!TABLE_NAME || !BUCKET_NAME || !SIGNING_KEY || !TOKEN_TTL || !PASSWORD_SALT) {
     throw new Error('ERROR! Invalid configs!');
   }
 
-  return new Configs(TABLE_NAME, new AuthConfig(new JwtConfig(SIGNING_KEY, Number(TOKEN_TTL)), Number(PASSWORD_SALT)));
+  return new Configs(TABLE_NAME, BUCKET_NAME, new AuthConfig(new JwtConfig(SIGNING_KEY, Number(TOKEN_TTL)), Number(PASSWORD_SALT)));
 };

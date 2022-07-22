@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import ApiError from '../models/api-error';
 import { JwtPlaceholder, Token } from '../models/token';
 
 export interface JwtManager {
@@ -21,7 +22,11 @@ export class AuthManager implements JwtManager {
   }
 
   verifyAccessToken(token: string) {
-    const jwtObj = jwt.verify(token, this.signingKey) as JwtPlaceholder;
-    return jwtObj.PK;
+    try {
+      const jwtObj = jwt.verify(token.split(' ')[1], this.signingKey) as JwtPlaceholder;
+      return jwtObj.PK;
+    } catch (error) {
+      throw new ApiError(401, 'ERROR! Invalid authorization token!');
+    }
   }
 }

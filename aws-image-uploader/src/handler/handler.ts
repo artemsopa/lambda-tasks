@@ -7,6 +7,7 @@ import Repository from '../respository/repository';
 import { initConfigs } from '../configs/config';
 import { AuthManager } from '../jwt/jwt.manager';
 import { BcryptHasher } from '../hasher/password.hasher';
+import ApiError from '../models/api-error';
 
 export class Response {
   statusCode: number;
@@ -17,6 +18,13 @@ export class Response {
     this.body = body;
   }
 }
+
+export const throwError = (error: unknown) => {
+  if (error instanceof ApiError) {
+    return new Response(error.status, JSON.stringify({ message: error.message }));
+  }
+  return new Response(500, JSON.stringify({ error }));
+};
 
 export interface IAuthHandler {
     signIn(event: APIGatewayEvent): Promise<Response>;
@@ -40,7 +48,8 @@ class Handler {
     const repos = new Repository(db, configs.tableName);
     const authManager = new AuthManager(configs.auth.jwt.signingKey, configs.auth.jwt.tokenTTL);
     const hasher = new BcryptHasher(configs.auth.passwordSalt);
-    const deps = new Deps(repos, authManager, hasher);
+    const bucket = new AWS.S3();
+    const deps = new Deps(repos, authManager, hasher, bucket, configs.bucketName);
     const services = new Service(deps);
 
     this.auth = new AuthHandler(services.auth);

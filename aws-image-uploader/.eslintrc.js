@@ -27,5 +27,6 @@ module.exports = {
     'max-len': 0,
     'import/extensions': 0,
     'import/no-extraneous-dependencies': 0,
+    'no-param-reassign': 0,
   },
 };

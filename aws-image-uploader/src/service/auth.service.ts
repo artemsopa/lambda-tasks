@@ -3,6 +3,7 @@ import { IUsersRepo } from '../respository/repository';
 import { UserInput } from '../models/user';
 import { AuthManager } from '../jwt/jwt.manager';
 import { PasswordHasher } from '../hasher/password.hasher';
+import ApiError from '../models/api-error';
 
 class AuthService implements IAuthService {
   constructor(private usersRepo: IUsersRepo, private authManager: AuthManager, private hasher: PasswordHasher) {
@@ -14,22 +15,22 @@ class AuthService implements IAuthService {
   async signIn(email: string, password: string) {
     const user = await this.usersRepo.getByEmail(email);
     if (!user) {
-      throw new Error(`ERROR! User with email '${email}' doesn't exist!`);
+      throw new ApiError(400, `ERROR! User with email '${email}' doesn't exist!`);
     }
     const isPassEquals = await this.hasher.compare(password, user.password);
     if (!isPassEquals) {
-      throw new Error('ERROR! Passwords missmatch!');
+      throw new ApiError(400, 'ERROR! Passwords missmatch!');
     }
     return this.authManager.newToken(user.PK);
   }
 
   async signUp(email: string, password: string, confirm: string) {
     if (password !== confirm) {
-      throw new Error('ERROR! Passwords missmatch!');
+      throw new ApiError(400, 'ERROR! Passwords missmatch!');
     }
     const user = await this.usersRepo.getByEmail(email);
     if (user) {
-      throw new Error(`ERROR! User with email '${email}' already exists!`);
+      throw new ApiError(400, `ERROR! User with email '${email}' already exists!`);
     }
     const hash = await this.hasher.hash(password);
     await this.usersRepo.create(new UserInput(email, hash));
