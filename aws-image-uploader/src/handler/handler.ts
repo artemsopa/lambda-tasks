@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
+import axios from 'axios';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
 import Service, { Deps } from '../service/service';
@@ -49,7 +50,8 @@ class Handler {
     const authManager = new AuthManager(configs.auth.jwt.signingKey, configs.auth.jwt.tokenTTL);
     const hasher = new BcryptHasher(configs.auth.passwordSalt);
     const bucket = new AWS.S3();
-    const deps = new Deps(repos, authManager, hasher, bucket, configs.bucketName);
+    const instance = axios.create();
+    const deps = new Deps(repos, authManager, hasher, bucket, configs.bucketName, instance);
     const services = new Service(deps);
 
     this.auth = new AuthHandler(services.auth);

@@ -19,7 +19,7 @@ class UsersRepo implements IUsersRepo {
       },
     };
     const result = await this.db.query(params).promise();
-    return result?.Items ? result.Items[0] as User : undefined;
+    return result && result.Items ? result.Items[0] as User : undefined;
   }
 
   async create(user: UserInput): Promise<void> {

@@ -14,31 +14,38 @@ provider:
   stage: ${opt:stage, 'dev'}
   apiGateway:
     binaryMediaTypes:
-      - 'multipart/form-data'
+      - "multipart/form-data"
   environment:
     TABLE_NAME: ${self:custom.tableName}
     BUCKET_NAME: ${self:custom.bucketName}
     SIGNING_KEY: 1239281783hshjdsehqi9
     TOKEN_TTL: 1800000
     PASSWORD_SALT: 3
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-        - s3:GetObject
-        - s3:DeleteObject
-      Resource: { "Fn::Join": ["", ["arn:aws:s3:::${self:custom.bucketName}", "/*" ] ] }
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - "Fn::GetAtt": [UploaderTable, Arn]
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource:
+            {
+              "Fn::Join":
+                [
+                  "arn:aws:s3:::${self:custom.bucketName}",
+                  ["arn:aws:s3:::${self:custom.bucketName}", "/*"],
+                ],
+            }
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:PutItem
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.tableName}"
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.tableName}/index/*"
 
 custom:
   tableName: img-upldr-${self:provider.stage}
@@ -73,12 +80,12 @@ functions:
     handler: ./src/index.deleteImage
     events:
       - http:
-          path: /bucket/{id}
+          path: /bucket/{title}
           method: delete
           request:
             parameters:
               paths:
-                id: true
+                title: true
 
 resources:
   Resources:
@@ -89,9 +96,9 @@ resources:
         CorsConfiguration:
           CorsRules:
             - AllowedOrigins:
-                - '*'
+                - "*"
               AllowedHeaders:
-                - '*'
+                - "*"
               AllowedMethods:
                 - GET
                 - POST
