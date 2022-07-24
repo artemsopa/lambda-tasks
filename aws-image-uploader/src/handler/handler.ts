@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
 import axios from 'axios';
+import { Boom } from '@hapi/boom';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
 import Service, {
@@ -20,31 +21,22 @@ export class Response {
   }
 }
 
-export const parseAuth = (event: APIGatewayEvent): string => {
-  const { authorizer } = event.requestContext;
-  if (!authorizer || !authorizer.claims || !authorizer.claims.email) {
-    throw new ApiError(401, 'ERROR! Unauthorized!');
-  }
-  return authorizer.claims.email;
-};
-
-export const throwError = (error: unknown) => {
+export const next = (error: unknown) => {
   if (error instanceof ApiError) {
     return new Response(error.status, JSON.stringify({ message: error.message }));
   }
-  return new Response(500, JSON.stringify({ error }));
-  // return new Response(500, JSON.stringify({ message: 'Internal Server Error!' }));
+  return new Response(500, JSON.stringify(error));
 };
 
 export interface IAuthHandler {
-    signIn(event: APIGatewayEvent): Promise<Response>;
-    signUp(event: APIGatewayEvent): Promise<Response>;
+    signIn(event: APIGatewayEvent): Promise<any>;
+    signUp(event: APIGatewayEvent): Promise<any>;
 }
 
 export interface IBucketHandler {
-    getAllImages(event: APIGatewayEvent): Promise<Response>;
-    uploadImage(event: APIGatewayEvent): Promise<Response>;
-    deleteImage(event: APIGatewayEvent): Promise<Response>;
+    getAllImages(event: APIGatewayEvent): Promise<any>;
+    uploadImage(event: APIGatewayEvent): Promise<any>;
+    deleteImage(event: APIGatewayEvent): Promise<any>;
 }
 
 class Handler {
@@ -75,3 +67,11 @@ class Handler {
 }
 
 export default new Handler();
+
+// export const parseAuth = (event: APIGatewayEvent): string => {
+//   const { authorizer } = event.requestContext;
+//   if (!authorizer || !authorizer.claims || !authorizer.claims.email) {
+//     throw new ApiError(401, 'ERROR! Unauthorized!');
+//   }
+//   return authorizer.claims.email;
+// };

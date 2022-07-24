@@ -1,9 +1,8 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import parser from 'lambda-multipart-parser';
-import {
-  IBucketHandler, parseAuth, Response, throwError,
-} from './handler';
+import { IBucketHandler, Response, next } from './handler';
 import { IBucketService } from '../service/service';
+import { contextSchema, deleteImageSchema } from '../joi-schemas/schemas.joi';
 import ApiError from '../models/api-error';
 
 class BucketHandler implements IBucketHandler {
@@ -13,35 +12,39 @@ class BucketHandler implements IBucketHandler {
 
   async getAllImages(event: APIGatewayEvent) {
     try {
-      const PK = parseAuth(event);
-      return new Response(200, JSON.stringify(await this.bucketService.getAllImages(PK)));
+      const context = await contextSchema.validateAsync(event.requestContext);
+      return new Response(200, JSON.stringify(await this.bucketService.getAllImages(context.authorizer.claims.email)));
     } catch (error) {
-      return throwError(error);
+      return next(error);
     }
   }
 
-  async uploadImage(event: APIGatewayEvent): Promise<Response> {
+  async uploadImage(event: APIGatewayEvent) {
     try {
-      const PK = parseAuth(event);
+      const context = await contextSchema.validateAsync(event.requestContext);
       const title = event.queryStringParameters?.title;
-      const file = (await parser.parse(event)).files.find((item) => item.fieldname === 'file');
-      if (!file) throw new ApiError(400, 'ERROR! Cannot find file!');
-      await this.bucketService.uploadImage(PK, title, file);
+      const file = await this.parseMultipart(event);
+      await this.bucketService.uploadImage(context.authorizer.claims.email, title, file);
       return new Response(201, JSON.stringify({ message: 'Image successfully uploaded!' }));
     } catch (error) {
-      return throwError(error);
+      return next(error);
     }
   }
 
-  async deleteImage(event: APIGatewayEvent): Promise<Response> {
+  private async parseMultipart(event: APIGatewayEvent) {
+    const file = (await parser.parse(event)).files.find((item) => item.fieldname === 'file');
+    if (!file) throw new ApiError(400, 'ERROR! Cannot find file!');
+    return file;
+  }
+
+  async deleteImage(event: APIGatewayEvent) {
     try {
-      const PK = parseAuth(event);
-      const title = event.pathParameters?.title;
-      if (!title) throw new ApiError(401, 'ERROR! Invalid image title!');
-      await this.bucketService.deleteImage(PK, title);
-      return new Response(200, JSON.stringify({ message: `Image ${title} sucessfully deleted!` }));
+      const context = await contextSchema.validateAsync(event.requestContext);
+      const params = await deleteImageSchema.validateAsync(event.pathParameters);
+      await this.bucketService.deleteImage(context.authorizer.claims.email, params.title);
+      return new Response(200, JSON.stringify({ message: `Image ${params.title} sucessfully deleted!` }));
     } catch (error) {
-      return throwError(error);
+      return next(error);
     }
   }
 }
