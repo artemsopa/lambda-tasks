@@ -21,8 +21,8 @@ class AuthHandler implements IAuthHandler {
   async signUp(event: APIGatewayEvent) {
     try {
       const body = JSON.parse(event.body || '');
-      if (!body.email || !body.password || !body.confirm) throw new ApiError(400, 'ERROR! Invalid credentials!');
-      await this.authService.signUp(body.email, body.password, body.confirm);
+      if (!body.email || !body.password) throw new ApiError(400, 'ERROR! Invalid credentials!');
+      await this.authService.signUp(body.email, body.password);
       return new Response(201, JSON.stringify({ message: 'Successfully registered!' }));
     } catch (error) {
       return throwError(error);

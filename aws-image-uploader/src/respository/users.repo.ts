@@ -1,5 +1,4 @@
 import AWS from 'aws-sdk';
-import { v4 as uuid } from 'uuid';
 import { IUsersRepo } from './repository';
 import { User, UserInput } from '../models/user';
 
@@ -9,26 +8,29 @@ class UsersRepo implements IUsersRepo {
     this.tableName = tableName;
   }
 
-  async getByEmail(email: string): Promise<User | undefined> {
+  async getByEmail(email: string): Promise<User> {
     const params = {
       TableName: this.tableName,
-      IndexName: 'UserEmail',
-      KeyConditionExpression: 'email = :email',
-      ExpressionAttributeValues: {
-        ':email': email,
+      Key: {
+        PK: email,
+        SK: 'user',
       },
+      // IndexName: 'UserEmail',
+      // KeyConditionExpression: 'email = :email',
+      // ExpressionAttributeValues: {
+      //   ':email': email,
+      // },
     };
-    const result = await this.client.query(params).promise();
-    return result && result.Items ? result.Items[0] as User : undefined;
+    const result = await this.client.get(params).promise();
+    return result.Item as User;
   }
 
   async create(user: UserInput): Promise<void> {
     const params = {
       TableName: this.tableName,
       Item: {
-        PK: `user_${uuid().toString()}`,
+        PK: user.email,
         SK: 'user',
-        email: user.email,
         password: user.password,
       },
     };

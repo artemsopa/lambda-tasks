@@ -6,6 +6,7 @@ frameworkVersion: "3"
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-export-env
 
 provider:
   name: aws
@@ -99,6 +100,15 @@ functions:
           path: /bucket
           method: post
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
   deleteImage:
     handler: ./src/index.deleteImage
     events:
@@ -106,6 +116,15 @@ functions:
           path: /bucket/{title}
           method: delete
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
           request:
             parameters:
               paths:
@@ -162,18 +181,9 @@ resources:
             AttributeType: S
           - AttributeName: SK
             AttributeType: S
-          - AttributeName: email
-            AttributeType: S
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
           - AttributeName: SK
             KeyType: RANGE
-        GlobalSecondaryIndexes:
-          - IndexName: UserEmail
-            KeySchema:
-              - AttributeName: email
-                KeyType: HASH
-            Projection:
-              ProjectionType: "ALL"
         BillingMode: PAY_PER_REQUEST

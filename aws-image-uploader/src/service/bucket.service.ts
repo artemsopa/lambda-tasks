@@ -14,8 +14,7 @@ class BucketService implements IBucketService {
     this.axios = axios;
   }
 
-  async getAllImages(token: string) {
-    const PK = ''; // this.authManager.verifyAccessToken(token);
+  async getAllImages(PK: string) {
     const params = {
       Bucket: this.s3.bucketName,
       Prefix: PK,
@@ -44,11 +43,9 @@ class BucketService implements IBucketService {
     return this.s3.bucket.getSignedUrl('getObject', params);
   }
 
-  async uploadImage(token: string, title: string | undefined, file: parser.MultipartFile) {
-    const PK = ''; // this.authManager.verifyAccessToken(token);
+  async uploadImage(PK: string, title: string | undefined, file: parser.MultipartFile) {
     const contentType = await this.getImageContentType(file.contentType);
-
-    title = title || `${file.filename}.${mime.getExtension(contentType)}`;
+    title = title ? `${title}.${mime.getExtension(contentType)}` : file.filename;
     const presignedPostData = await this.createPresignedPost(PK, title, contentType);
     await this.uploadFileToS3(presignedPostData, file.filename, file.content);
   }
@@ -87,12 +84,11 @@ class BucketService implements IBucketService {
     });
     formData.append('file', buffer, title);
     await this.axios.post(presignedPostData.url, formData, {
-      headers: { ...formData.getHeaders(), 'Content-Length': buffer.byteLength },
+      headers: { ...formData.getHeaders(), 'Content-Length': buffer.byteLength + 20000 },
     });
   }
 
-  async deleteImage(token: string, title: string) {
-    const PK = ''; // this.authManager.verifyAccessToken(token);
+  async deleteImage(PK: string, title: string) {
     const params = {
       Bucket: this.s3.bucketName,
       Key: `${PK}/images/${title}`,

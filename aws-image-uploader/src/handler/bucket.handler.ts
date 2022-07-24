@@ -1,6 +1,8 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import parser from 'lambda-multipart-parser';
-import { IBucketHandler, Response, throwError } from './handler';
+import {
+  IBucketHandler, parseAuth, Response, throwError,
+} from './handler';
 import { IBucketService } from '../service/service';
 import ApiError from '../models/api-error';
 
@@ -11,8 +13,7 @@ class BucketHandler implements IBucketHandler {
 
   async getAllImages(event: APIGatewayEvent) {
     try {
-      const PK = event.headers.Authorization;
-      if (!PK) throw new ApiError(401, 'ERROR! Unauthorized!');
+      const PK = parseAuth(event);
       return new Response(200, JSON.stringify(await this.bucketService.getAllImages(PK)));
     } catch (error) {
       return throwError(error);
@@ -21,12 +22,11 @@ class BucketHandler implements IBucketHandler {
 
   async uploadImage(event: APIGatewayEvent): Promise<Response> {
     try {
-      const token = event.headers.Authorization;
-      if (!token) throw new ApiError(401, 'ERROR! Unauthorized!');
-      const name = event.queryStringParameters?.name;
+      const PK = parseAuth(event);
+      const title = event.queryStringParameters?.title;
       const file = (await parser.parse(event)).files.find((item) => item.fieldname === 'file');
       if (!file) throw new ApiError(400, 'ERROR! Cannot find file!');
-      await this.bucketService.uploadImage(token, name, file);
+      await this.bucketService.uploadImage(PK, title, file);
       return new Response(201, JSON.stringify({ message: 'Image successfully uploaded!' }));
     } catch (error) {
       return throwError(error);
@@ -35,11 +35,11 @@ class BucketHandler implements IBucketHandler {
 
   async deleteImage(event: APIGatewayEvent): Promise<Response> {
     try {
-      const PK = event.headers.Authorization;
-      if (!PK) throw new ApiError(401, 'ERROR! Unauthorized!');
-      const title = event.pathParameters?.id;
+      const PK = parseAuth(event);
+      const title = event.pathParameters?.title;
       if (!title) throw new ApiError(401, 'ERROR! Invalid image title!');
-      return new Response(200, JSON.stringify(this.bucketService.deleteImage(PK, title)));
+      await this.bucketService.deleteImage(PK, title);
+      return new Response(200, JSON.stringify({ message: `Image ${title} sucessfully deleted!` }));
     } catch (error) {
       return throwError(error);
     }

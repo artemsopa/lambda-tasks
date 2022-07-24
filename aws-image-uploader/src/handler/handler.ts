@@ -8,7 +8,6 @@ import Service, {
 } from '../service/service';
 import Repository from '../respository/repository';
 import { initConfigs } from '../configs/config';
-import { BcryptHasher } from '../hasher/password.hasher';
 import ApiError from '../models/api-error';
 
 export class Response {
@@ -20,6 +19,14 @@ export class Response {
     this.body = body;
   }
 }
+
+export const parseAuth = (event: APIGatewayEvent): string => {
+  const { authorizer } = event.requestContext;
+  if (!authorizer || !authorizer.claims || !authorizer.claims.email) {
+    throw new ApiError(401, 'ERROR! Unauthorized!');
+  }
+  return authorizer.claims.email;
+};
 
 export const throwError = (error: unknown) => {
   if (error instanceof ApiError) {
@@ -51,7 +58,6 @@ class Handler {
     const client = new AWS.DynamoDB.DocumentClient();
     const bucket = new AWS.S3();
 
-    const hasher = new BcryptHasher(configs.auth.passwordSalt);
     const axiosInstance = axios.create();
 
     const deps = new Deps(
@@ -59,7 +65,6 @@ class Handler {
       new DynamoDBDeps(client, configs.dynamodb.tableName),
       new S3Deps(bucket, configs.s3.bucketName),
       new Repository(client, configs.dynamodb.tableName),
-      hasher,
       axiosInstance,
     );
     const services = new Service(deps);

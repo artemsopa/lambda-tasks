@@ -1,12 +1,10 @@
 export class User {
   PK: string;
   SK: string;
-  email: string;
   password: string;
-  constructor(PK: string, SK: string, email: string, password: string) {
+  constructor(PK: string, SK: string, password: string) {
     this.PK = PK;
     this.SK = SK;
-    this.email = email;
     this.password = password;
   }
 }

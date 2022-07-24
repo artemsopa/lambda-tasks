@@ -1,15 +1,13 @@
-import AWS from 'aws-sdk';
 import { CognitoDeps, IAuthService } from './service';
 import { IUsersRepo } from '../respository/repository';
 import { UserInput } from '../models/user';
-import { PasswordHasher } from '../hasher/password.hasher';
 import ApiError from '../models/api-error';
+import { Token } from '../models/token';
 
 class AuthService implements IAuthService {
-  constructor(private cognito: CognitoDeps, private usersRepo: IUsersRepo, private hasher: PasswordHasher) {
+  constructor(private cognito: CognitoDeps, private usersRepo: IUsersRepo) {
     this.cognito = cognito;
     this.usersRepo = usersRepo;
-    this.hasher = hasher;
   }
 
   async signIn(email: string, password: string) {
@@ -23,19 +21,12 @@ class AuthService implements IAuthService {
       },
     };
     const response = await this.cognito.identity.adminInitiateAuth(params).promise();
-    return response.AuthenticationResult?.IdToken;
-    // const user = await this.usersRepo.getByEmail(email);
-    // if (!user) {
-    //   throw new ApiError(400, `ERROR! User with email '${email}' doesn't exist!`);
-    // }
-    // const isPassEquals = await this.hasher.compare(password, user.password);
-    // if (!isPassEquals) {
-    //   throw new ApiError(400, 'ERROR! Passwords missmatch!');
-    // }
-    // return this.authManager.newToken(user.PK);
+    const token = response.AuthenticationResult?.IdToken;
+    if (!token) throw new ApiError(500, 'ERROR! Cannot authorize user!');
+    return new Token(token);
   }
 
-  async signUp(email: string, password: string, confirm: string) {
+  async signUp(email: string, password: string) {
     const paramsEmail = {
       UserPoolId: this.cognito.userPoolId,
       Username: email,
@@ -60,13 +51,6 @@ class AuthService implements IAuthService {
       };
       await this.cognito.identity.adminSetUserPassword(paramsPass).promise();
     }
-    // if (password !== confirm) {
-    //   throw new ApiError(400, 'ERROR! Passwords missmatch!');
-    // }
-    // const user = await this.usersRepo.getByEmail(email);
-    // if (user) {
-    //   throw new ApiError(400, `ERROR! User with email '${email}' already exists!`);
-    // }
     // const hash = await this.hasher.hash(password);
     // await this.usersRepo.create(new UserInput(email, hash));
   }

@@ -14,11 +14,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.101",
-    "@types/bcryptjs": "^2.4.2",
-    "@types/jsonwebtoken": "^8.5.8",
     "@types/mime": "^2.0.3",
     "@types/node": "^18.0.3",
-    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "aws-sdk": "^2.1177.0",
@@ -26,6 +23,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "serverless": "^3.20.0",
+    "serverless-export-env": "^2.2.0",
     "serverless-offline": "^8.8.1",
     "serverless-webpack": "^5.7.1",
     "ts-loader": "^9.3.1",
@@ -38,13 +36,10 @@
     "@middy/http-json-body-parser": "^3.1.0",
     "@middy/validator": "^3.1.0",
     "axios": "^0.27.2",
-    "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.1",
     "form-data": "^4.0.0",
     "joi": "^17.6.0",
-    "jsonwebtoken": "^8.5.1",
     "lambda-multipart-parser": "^1.0.1",
-    "mime": "^3.0.0",
-    "uuid": "^8.3.2"
+    "mime": "^3.0.0"
   }
 }
