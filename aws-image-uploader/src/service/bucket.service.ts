@@ -3,26 +3,24 @@ import parser from 'lambda-multipart-parser';
 import mime from 'mime';
 import FormData from 'form-data';
 import { AxiosInstance } from 'axios';
-import { IBucketService } from './service';
-import { AuthManager } from '../jwt/jwt.manager';
+import { CognitoDeps, IBucketService, S3Deps } from './service';
 import { Image } from '../models/image';
 import ApiError from '../models/api-error';
 
 class BucketService implements IBucketService {
-  constructor(private authManager: AuthManager, private bucket: AWS.S3, private bucketName: string, private axios: AxiosInstance) {
-    this.authManager = authManager;
-    this.bucket = bucket;
-    this.bucketName = bucketName;
+  constructor(private cognito: CognitoDeps, private s3: S3Deps, private axios: AxiosInstance) {
+    this.cognito = cognito;
+    this.s3 = s3;
     this.axios = axios;
   }
 
   async getAllImages(token: string) {
-    const PK = this.authManager.verifyAccessToken(token);
+    const PK = ''; // this.authManager.verifyAccessToken(token);
     const params = {
-      Bucket: this.bucketName,
+      Bucket: this.s3.bucketName,
       Prefix: PK,
     };
-    const response = await this.bucket.listObjectsV2(params).promise();
+    const response = await this.s3.bucket.listObjectsV2(params).promise();
     if (!response.Contents || response.Contents.length === 0) {
       return [];
     }
@@ -40,14 +38,14 @@ class BucketService implements IBucketService {
   private getSignedUrl(key: string) {
     const params = {
       Key: key,
-      Bucket: this.bucketName,
+      Bucket: this.s3.bucketName,
       Expires: 900,
     };
-    return this.bucket.getSignedUrl('getObject', params);
+    return this.s3.bucket.getSignedUrl('getObject', params);
   }
 
   async uploadImage(token: string, title: string | undefined, file: parser.MultipartFile) {
-    const PK = this.authManager.verifyAccessToken(token);
+    const PK = ''; // this.authManager.verifyAccessToken(token);
     const contentType = await this.getImageContentType(file.contentType);
 
     title = title || `${file.filename}.${mime.getExtension(contentType)}`;
@@ -66,7 +64,7 @@ class BucketService implements IBucketService {
   private createPresignedPost(PK: string, title: string, contentType: string) {
     const params = {
       Expires: 30 * 60,
-      Bucket: this.bucketName,
+      Bucket: this.s3.bucketName,
       Conditions: [['content-length-range', 100, 10000000]],
       Fields: {
         'Content-Type': contentType,
@@ -74,7 +72,7 @@ class BucketService implements IBucketService {
       },
     };
     return new Promise<AWS.S3.PresignedPost>((resolve, reject) => {
-      this.bucket.createPresignedPost(params, (err, data) => {
+      this.s3.bucket.createPresignedPost(params, (err, data) => {
         if (err) {
           reject(err);
         } else resolve(data);
@@ -94,12 +92,12 @@ class BucketService implements IBucketService {
   }
 
   async deleteImage(token: string, title: string) {
-    const PK = this.authManager.verifyAccessToken(token);
+    const PK = ''; // this.authManager.verifyAccessToken(token);
     const params = {
-      Bucket: this.bucketName,
+      Bucket: this.s3.bucketName,
       Key: `${PK}/images/${title}`,
     };
-    await this.bucket.deleteObject(params).promise();
+    await this.s3.bucket.deleteObject(params).promise();
   }
 }
 

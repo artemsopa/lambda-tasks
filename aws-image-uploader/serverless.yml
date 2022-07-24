@@ -18,12 +18,19 @@ provider:
   environment:
     TABLE_NAME: ${self:custom.tableName}
     BUCKET_NAME: ${self:custom.bucketName}
-    SIGNING_KEY: 1239281783hshjdsehqi9
-    TOKEN_TTL: 1800000
     PASSWORD_SALT: 3
+    USER_POOL_ID: ${self:custom.userPoolName}
+    USER_CLIENT_ID: ${self:custom.userClientName}
   iam:
     role:
       statements:
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+          Resource: "*"
+
         - Effect: Allow
           Action:
             - s3:GetObject
@@ -37,6 +44,7 @@ provider:
                   ["arn:aws:s3:::${self:custom.bucketName}", "/*"],
                 ],
             }
+
         - Effect: Allow
           Action:
             - dynamodb:Query
@@ -50,6 +58,8 @@ provider:
 custom:
   tableName: img-upldr-${self:provider.stage}
   bucketName: img-upldr-${self:provider.stage}
+  userPoolName: user-pool-${self:provider.stage}
+  userClientName: user-pool-client-${self:provider.stage}
 
 functions:
   signIn:
@@ -58,30 +68,44 @@ functions:
       - http:
           path: /auth/sign-in
           method: post
+          cors: true
   signUp:
     handler: ./src/index.signUp
     events:
       - http:
           path: /auth/sign-up
           method: post
+          cors: true
   getAllImages:
     handler: ./src/index.getAllImages
     events:
       - http:
           path: /bucket
           method: get
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
   uploadImage:
     handler: ./src/index.uploadImage
     events:
       - http:
           path: /bucket
           method: post
+          cors: true
   deleteImage:
     handler: ./src/index.deleteImage
     events:
       - http:
           path: /bucket/{title}
           method: delete
+          cors: true
           request:
             parameters:
               paths:
@@ -89,6 +113,30 @@ functions:
 
 resources:
   Resources:
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:custom.userPoolName}
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+        AutoVerifiedAttributes: ["email"]
+
+    UserClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:custom.userClientName}
+        GenerateSecret: false
+        UserPoolId: { Ref: UserPool }
+        AccessTokenValidity: 5
+        IdTokenValidity: 5
+        ExplicitAuthFlows:
+          - "ADMIN_NO_SRP_AUTH"
+
     UploaderBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -104,6 +152,7 @@ resources:
                 - POST
                 - DELETE
               MaxAge: 3000
+
     UploaderTable:
       Type: AWS::DynamoDB::Table
       Properties:

@@ -3,10 +3,11 @@ import { APIGatewayEvent } from 'aws-lambda';
 import axios from 'axios';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
-import Service, { Deps } from '../service/service';
+import Service, {
+  CognitoDeps, Deps, DynamoDBDeps, S3Deps,
+} from '../service/service';
 import Repository from '../respository/repository';
 import { initConfigs } from '../configs/config';
-import { AuthManager } from '../jwt/jwt.manager';
 import { BcryptHasher } from '../hasher/password.hasher';
 import ApiError from '../models/api-error';
 
@@ -25,6 +26,7 @@ export const throwError = (error: unknown) => {
     return new Response(error.status, JSON.stringify({ message: error.message }));
   }
   return new Response(500, JSON.stringify({ error }));
+  // return new Response(500, JSON.stringify({ message: 'Internal Server Error!' }));
 };
 
 export interface IAuthHandler {
@@ -45,13 +47,21 @@ class Handler {
   constructor() {
     const configs = initConfigs();
 
-    const db = new AWS.DynamoDB.DocumentClient();
-    const repos = new Repository(db, configs.tableName);
-    const authManager = new AuthManager(configs.auth.jwt.signingKey, configs.auth.jwt.tokenTTL);
-    const hasher = new BcryptHasher(configs.auth.passwordSalt);
+    const identity = new AWS.CognitoIdentityServiceProvider();
+    const client = new AWS.DynamoDB.DocumentClient();
     const bucket = new AWS.S3();
-    const instance = axios.create();
-    const deps = new Deps(repos, authManager, hasher, bucket, configs.bucketName, instance);
+
+    const hasher = new BcryptHasher(configs.auth.passwordSalt);
+    const axiosInstance = axios.create();
+
+    const deps = new Deps(
+      new CognitoDeps(identity, configs.auth.cognito.userPoolId, configs.auth.cognito.userClientId),
+      new DynamoDBDeps(client, configs.dynamodb.tableName),
+      new S3Deps(bucket, configs.s3.bucketName),
+      new Repository(client, configs.dynamodb.tableName),
+      hasher,
+      axiosInstance,
+    );
     const services = new Service(deps);
 
     this.auth = new AuthHandler(services.auth);

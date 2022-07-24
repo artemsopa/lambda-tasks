@@ -4,8 +4,8 @@ import { IUsersRepo } from './repository';
 import { User, UserInput } from '../models/user';
 
 class UsersRepo implements IUsersRepo {
-  constructor(private db: AWS.DynamoDB.DocumentClient, private tableName: string) {
-    this.db = db;
+  constructor(private client: AWS.DynamoDB.DocumentClient, private tableName: string) {
+    this.client = client;
     this.tableName = tableName;
   }
 
@@ -18,7 +18,7 @@ class UsersRepo implements IUsersRepo {
         ':email': email,
       },
     };
-    const result = await this.db.query(params).promise();
+    const result = await this.client.query(params).promise();
     return result && result.Items ? result.Items[0] as User : undefined;
   }
 
@@ -32,7 +32,7 @@ class UsersRepo implements IUsersRepo {
         password: user.password,
       },
     };
-    await this.db.put(params).promise();
+    await this.client.put(params).promise();
   }
 }
 

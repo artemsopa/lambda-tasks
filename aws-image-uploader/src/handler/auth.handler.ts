@@ -1,6 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { IAuthHandler, Response, throwError } from './handler';
 import { IAuthService } from '../service/service';
+import ApiError from '../models/api-error';
 
 class AuthHandler implements IAuthHandler {
   constructor(private authService: IAuthService) {
@@ -9,13 +10,9 @@ class AuthHandler implements IAuthHandler {
 
   async signIn(event: APIGatewayEvent) {
     try {
-      const { email, password } = JSON.parse(event.body || '');
-      if (!email || !password) {
-        return new Response(400, JSON.stringify({
-          message: 'Invalid credentials!',
-        }));
-      }
-      return new Response(200, JSON.stringify(await this.authService.signIn(email, password)));
+      const body = JSON.parse(event.body || '');
+      if (!body.email || !body.password) throw new ApiError(401, 'ERROR! Invalid credentials!');
+      return new Response(200, JSON.stringify(await this.authService.signIn(body.email, body.password)));
     } catch (error) {
       return throwError(error);
     }
@@ -23,16 +20,10 @@ class AuthHandler implements IAuthHandler {
 
   async signUp(event: APIGatewayEvent) {
     try {
-      const { email, password, confirm } = JSON.parse(event.body || '');
-      if (!email || !password) {
-        return new Response(400, JSON.stringify({
-          message: 'Invalid credentials!',
-        }));
-      }
-      await this.authService.signUp(email, password, confirm);
-      return new Response(201, JSON.stringify({
-        message: 'Successfully registered!',
-      }));
+      const body = JSON.parse(event.body || '');
+      if (!body.email || !body.password || !body.confirm) throw new ApiError(400, 'ERROR! Invalid credentials!');
+      await this.authService.signUp(body.email, body.password, body.confirm);
+      return new Response(201, JSON.stringify({ message: 'Successfully registered!' }));
     } catch (error) {
       return throwError(error);
     }

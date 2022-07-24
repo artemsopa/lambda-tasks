@@ -1,43 +1,25 @@
 import dotenv from 'dotenv';
-
-class JwtConfig {
-  signingKey: string;
-  tokenTTL: number;
-  constructor(signingKey: string, tokenTTL: number) {
-    this.signingKey = signingKey;
-    this.tokenTTL = tokenTTL;
-  }
-}
-
-class AuthConfig {
-  jwt: JwtConfig;
-  passwordSalt: number;
-  constructor(jwt: JwtConfig, passwordSalt: number) {
-    this.jwt = jwt;
-    this.passwordSalt = passwordSalt;
-  }
-}
-
-export class Configs {
-  tableName: string;
-  bucketName: string;
-  auth: AuthConfig;
-  constructor(bucketName: string, tableName: string, auth: AuthConfig) {
-    this.tableName = tableName;
-    this.bucketName = bucketName;
-    this.auth = auth;
-  }
-}
+import {
+  CognitoConfigs, Configs, AuthConfig, S3Configs, DynamoDBConfigs,
+} from '../models/config-models';
 
 export const initConfigs = (): Configs => {
   dotenv.config();
+  // SIGNING_KEY, TOKEN_TTL
   const {
-    TABLE_NAME, BUCKET_NAME, SIGNING_KEY, TOKEN_TTL, PASSWORD_SALT,
+    USER_POOL_ID, USER_CLIENT_ID, TABLE_NAME, BUCKET_NAME, PASSWORD_SALT,
   } = process.env;
 
-  if (!TABLE_NAME || !BUCKET_NAME || !SIGNING_KEY || !TOKEN_TTL || !PASSWORD_SALT) {
+  if (!USER_POOL_ID || !USER_CLIENT_ID || !TABLE_NAME || !BUCKET_NAME || !PASSWORD_SALT) {
     throw new Error('ERROR! Invalid configs!');
   }
 
-  return new Configs(TABLE_NAME, BUCKET_NAME, new AuthConfig(new JwtConfig(SIGNING_KEY, Number(TOKEN_TTL)), Number(PASSWORD_SALT)));
+  return new Configs(
+    new AuthConfig(
+      new CognitoConfigs(USER_POOL_ID, USER_CLIENT_ID),
+      Number(PASSWORD_SALT),
+    ),
+    new S3Configs(BUCKET_NAME),
+    new DynamoDBConfigs(TABLE_NAME),
+  );
 };
