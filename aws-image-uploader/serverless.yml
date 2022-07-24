@@ -19,8 +19,8 @@ provider:
     TABLE_NAME: ${self:custom.tableName}
     BUCKET_NAME: ${self:custom.bucketName}
     PASSWORD_SALT: 3
-    USER_POOL_ID: ${self:custom.userPoolName}
-    USER_CLIENT_ID: ${self:custom.userClientName}
+    USER_POOL_ID: { Ref: UserPool }
+    USER_CLIENT_ID: { Ref: UserClient }
   iam:
     role:
       statements:
@@ -56,10 +56,10 @@ provider:
           Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.tableName}/index/*"
 
 custom:
-  tableName: img_upldr_${self:provider.stage}_table
-  bucketName: img_upldr_${self:provider.stage}_bucket
-  userPoolName: img_upldr_${self:provider.stage}_user_pool
-  userClientName: img_upldr_${self:provider.stage}_user_pool_client
+  tableName: img-upldr-table-${self:provider.stage}
+  bucketName: img-upldr-bucket-${self:provider.stage}
+  userPoolName: img-upldr-user-pool-${self:provider.stage}
+  userClientName: img-upldr-user-pool-client-${self:provider.stage}
 
 functions:
   signIn:
