@@ -5,7 +5,6 @@ import {
 
 export const initConfigs = (): Configs => {
   dotenv.config();
-  // SIGNING_KEY, TOKEN_TTL
   const {
     USER_POOL_ID, USER_CLIENT_ID, TABLE_NAME, BUCKET_NAME, PASSWORD_SALT,
   } = process.env;

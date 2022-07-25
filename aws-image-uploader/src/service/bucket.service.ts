@@ -24,7 +24,7 @@ class BucketService implements IBucketService {
       return [];
     }
     return response.Contents.map((item) => {
-      if (!item.Key || !item.Size) throw new ApiError(500, 'ERROR! Cannot get images data!');
+      if (!item.Key || !item.Size) throw new ApiError(500, 'Cannot get images data');
       return new Image(this.getImageTitle(item.Key), this.getSignedUrl(item.Key), item.Size);
     });
   }
@@ -56,7 +56,7 @@ class BucketService implements IBucketService {
   private getImageContentType(contentType: string) {
     return new Promise<string>((resolve, reject) => {
       if (contentType.split('/')[0] !== 'image') {
-        reject(new ApiError(400, 'ERROR! Invalid Content-Type!'));
+        reject(new ApiError(400, 'Invalid Content-Type'));
       } else resolve(contentType);
     });
   }
@@ -86,9 +86,6 @@ class BucketService implements IBucketService {
       formData.append(key, presignedPostData.fields[key]);
     });
     formData.append('file', buffer, title);
-    console.log(buffer.byteLength);
-    console.log(buffer.buffer.byteLength);
-    console.log(new ArrayBuffer(buffer.byteLength).byteLength);
     await this.axios.post(presignedPostData.url, formData, {
       headers: { ...formData.getHeaders(), 'Content-Length': buffer.byteLength * 2 },
     });

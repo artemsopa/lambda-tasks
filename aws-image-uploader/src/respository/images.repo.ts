@@ -1,7 +1,6 @@
 import AWS from 'aws-sdk';
-// import { IImagesRepo } from './repository';
-import { Image, ImageItem } from '../models/image';
 import { IImagesRepo } from './repository';
+import { Image, ImageItem } from '../models/image';
 
 class ImagesRepo implements IImagesRepo {
   constructor(private client: AWS.DynamoDB.DocumentClient, private tableName: string) {

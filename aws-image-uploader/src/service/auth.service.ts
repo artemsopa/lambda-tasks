@@ -1,6 +1,5 @@
 import { CognitoDeps, IAuthService } from './service';
 import { IUsersRepo } from '../respository/repository';
-import { UserInput } from '../models/user';
 import { Token } from '../models/token';
 import { PasswordHasher } from '../hasher/password.hasher';
 import ApiError from '../models/api-error';
