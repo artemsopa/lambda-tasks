@@ -7,7 +7,7 @@ export class CognitoConfigs {
   }
 }
 
-export class AuthConfig {
+export class AuthConfigs {
   cognito: CognitoConfigs;
   passwordSalt: number;
   constructor(cognito: CognitoConfigs, passwordSalt: number) {
@@ -31,10 +31,10 @@ export class DynamoDBConfigs {
 }
 
 export class Configs {
-  auth: AuthConfig;
+  auth: AuthConfigs;
   s3: S3Configs;
   dynamodb: DynamoDBConfigs;
-  constructor(auth: AuthConfig, s3: S3Configs, dynamodb: DynamoDBConfigs) {
+  constructor(auth: AuthConfigs, s3: S3Configs, dynamodb: DynamoDBConfigs) {
     this.auth = auth;
     this.s3 = s3;
     this.dynamodb = dynamodb;

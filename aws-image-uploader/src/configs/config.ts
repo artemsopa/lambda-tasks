@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import {
-  CognitoConfigs, Configs, AuthConfig, S3Configs, DynamoDBConfigs,
+  CognitoConfigs, Configs, AuthConfigs, S3Configs, DynamoDBConfigs,
 } from '../models/config-models';
 
 export const initConfigs = (): Configs => {
@@ -14,7 +14,7 @@ export const initConfigs = (): Configs => {
   }
 
   return new Configs(
-    new AuthConfig(
+    new AuthConfigs(
       new CognitoConfigs(USER_POOL_ID, USER_CLIENT_ID),
       Number(PASSWORD_SALT),
     ),
