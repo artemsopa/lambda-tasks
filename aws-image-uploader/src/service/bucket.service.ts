@@ -3,13 +3,13 @@ import parser from 'lambda-multipart-parser';
 import mime from 'mime';
 import FormData from 'form-data';
 import { AxiosInstance } from 'axios';
-import { CognitoDeps, IBucketService, S3Deps } from './service';
+import { IBucketService, S3Deps } from './service';
 import { Image } from '../models/image';
+import { IImagesRepo } from '../respository/repository';
 import ApiError from '../models/api-error';
 
 class BucketService implements IBucketService {
-  constructor(private cognito: CognitoDeps, private s3: S3Deps, private axios: AxiosInstance) {
-    this.cognito = cognito;
+  constructor(private imagesRepo: IImagesRepo, private s3: S3Deps, private axios: AxiosInstance) {
     this.s3 = s3;
     this.axios = axios;
   }
@@ -46,8 +46,11 @@ class BucketService implements IBucketService {
   async uploadImage(PK: string, title: string | undefined, file: parser.MultipartFile) {
     const contentType = await this.getImageContentType(file.contentType);
     title = title ? `${title}.${mime.getExtension(contentType)}` : file.filename;
+    const image = await this.imagesRepo.getImage(PK, title);
+    if (image) throw new ApiError(400, `Image ${title} already exist in your bucket`);
     const presignedPostData = await this.createPresignedPost(PK, title, contentType);
     await this.uploadFileToS3(presignedPostData, file.filename, file.content);
+    await this.imagesRepo.create(PK, new Image(title, `${PK}/images/${title}`, file.content.length));
   }
 
   private getImageContentType(contentType: string) {
@@ -83,17 +86,23 @@ class BucketService implements IBucketService {
       formData.append(key, presignedPostData.fields[key]);
     });
     formData.append('file', buffer, title);
+    console.log(buffer.byteLength);
+    console.log(buffer.buffer.byteLength);
+    console.log(new ArrayBuffer(buffer.byteLength).byteLength);
     await this.axios.post(presignedPostData.url, formData, {
-      headers: { ...formData.getHeaders(), 'Content-Length': buffer.byteLength + 20000 },
+      headers: { ...formData.getHeaders(), 'Content-Length': buffer.byteLength * 2 },
     });
   }
 
   async deleteImage(PK: string, title: string) {
+    const image = await this.imagesRepo.getImage(PK, title);
+    if (!image) throw new ApiError(400, `Image ${title} does not exist in your bucket`);
     const params = {
       Bucket: this.s3.bucketName,
       Key: `${PK}/images/${title}`,
     };
     await this.s3.bucket.deleteObject(params).promise();
+    await this.imagesRepo.delete(PK, title);
   }
 }
 

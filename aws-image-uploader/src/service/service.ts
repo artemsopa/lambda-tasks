@@ -1,16 +1,18 @@
 import AWS from 'aws-sdk';
 import parser from 'lambda-multipart-parser';
 import { AxiosInstance } from 'axios';
+import { hash } from 'bcryptjs';
 import AuthService from './auth.service';
 import BucketService from './bucket.service';
 import Repository from '../respository/repository';
 import { Image } from '../models/image';
 import { CognitoConfigs, DynamoDBConfigs, S3Configs } from '../models/config-models';
 import { Token } from '../models/token';
+import { PasswordHasher } from '../hasher/password.hasher';
 
 export interface IAuthService {
   signIn(email: string, password: string): Promise<Token>;
-  signUp(email: string, password: string): Promise<void>;
+  signUp(email: string, password: string, confirm: string): Promise<void>;
 }
 
 export interface IBucketService {
@@ -48,18 +50,21 @@ export class Deps {
   dynamodb: DynamoDBDeps;
   s3: S3Deps;
   repos: Repository;
+  hasher: PasswordHasher;
   axios: AxiosInstance;
   constructor(
     cognito: CognitoDeps,
     dynamodb: DynamoDBDeps,
     s3: S3Deps,
     repos: Repository,
+    hasher: PasswordHasher,
     axios: AxiosInstance,
   ) {
     this.cognito = cognito;
     this.dynamodb = dynamodb;
     this.s3 = s3;
     this.repos = repos;
+    this.hasher = hasher;
     this.axios = axios;
   }
 }
@@ -69,7 +74,7 @@ export default class Service {
   bucket: IBucketService;
 
   constructor(deps: Deps) {
-    this.auth = new AuthService(deps.cognito, deps.repos.users);
-    this.bucket = new BucketService(deps.cognito, deps.s3, deps.axios);
+    this.auth = new AuthService(deps.cognito, deps.repos.users, deps.hasher);
+    this.bucket = new BucketService(deps.repos.images, deps.s3, deps.axios);
   }
 }

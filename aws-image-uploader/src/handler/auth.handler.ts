@@ -20,7 +20,7 @@ class AuthHandler implements IAuthHandler {
   async signUp(event: APIGatewayEvent) {
     try {
       const body = await signUpSchema.validateAsync(event.body);
-      await this.authService.signUp(body.email, body.password);
+      await this.authService.signUp(body.email, body.password, body.confirm);
       return new Response(201, JSON.stringify({ message: 'Successfully registered!' }));
     } catch (error) {
       return next(error);

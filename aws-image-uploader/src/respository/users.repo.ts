@@ -15,23 +15,17 @@ class UsersRepo implements IUsersRepo {
         PK: email,
         SK: 'user',
       },
-      // IndexName: 'UserEmail',
-      // KeyConditionExpression: 'email = :email',
-      // ExpressionAttributeValues: {
-      //   ':email': email,
-      // },
     };
     const result = await this.client.get(params).promise();
     return result.Item as User;
   }
 
-  async create(user: UserInput): Promise<void> {
+  async create(email: string): Promise<void> {
     const params = {
       TableName: this.tableName,
       Item: {
-        PK: user.email,
+        PK: email,
         SK: 'user',
-        password: user.password,
       },
     };
     await this.client.put(params).promise();

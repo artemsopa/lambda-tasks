@@ -10,6 +10,7 @@ import Service, {
 import Repository from '../respository/repository';
 import { initConfigs } from '../configs/config';
 import ApiError from '../models/api-error';
+import { BcryptHasher } from '../hasher/password.hasher';
 
 export class Response {
   statusCode: number;
@@ -57,6 +58,7 @@ class Handler {
       new DynamoDBDeps(client, configs.dynamodb.tableName),
       new S3Deps(bucket, configs.s3.bucketName),
       new Repository(client, configs.dynamodb.tableName),
+      new BcryptHasher(configs.auth.passwordSalt),
       axiosInstance,
     );
     const services = new Service(deps);
