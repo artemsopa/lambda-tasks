@@ -4,7 +4,7 @@ import axios from 'axios';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
 import Service, { Deps } from '../service/service';
-import Repository from '../respository/repository';
+import Repository from '../repository/repository';
 import { initConfigs } from '../configs/config';
 import ApiError from '../models/api-error';
 
