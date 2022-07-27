@@ -1,16 +1,12 @@
 import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
 import axios from 'axios';
-import { Boom } from '@hapi/boom';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
-import Service, {
-  CognitoDeps, Deps, DynamoDBDeps, S3Deps,
-} from '../service/service';
+import Service, { Deps } from '../service/service';
 import Repository from '../respository/repository';
 import { initConfigs } from '../configs/config';
 import ApiError from '../models/api-error';
-import { BcryptHasher } from '../hasher/password.hasher';
 
 export class Response {
   statusCode: number;
@@ -46,19 +42,20 @@ class Handler {
 
   constructor() {
     const configs = initConfigs();
-
-    const identity = new AWS.CognitoIdentityServiceProvider();
-    const client = new AWS.DynamoDB.DocumentClient();
-    const bucket = new AWS.S3();
-
     const axiosInstance = axios.create();
 
+    const cognito = new AWS.CognitoIdentityServiceProvider();
+    const dynamodb = new AWS.DynamoDB.DocumentClient();
+    const s3 = new AWS.S3();
+
     const deps = new Deps(
-      new CognitoDeps(identity, configs.auth.cognito.userPoolId, configs.auth.cognito.userClientId),
-      new DynamoDBDeps(client, configs.dynamodb.tableName),
-      new S3Deps(bucket, configs.s3.bucketName),
-      new Repository(client, configs.dynamodb.tableName),
-      new BcryptHasher(configs.auth.passwordSalt),
+      new Repository(dynamodb, configs.dynamodb.tableName),
+      cognito,
+      configs.cognito.userPoolId,
+      configs.cognito.userClientId,
+      configs.cognito.secretHash,
+      s3,
+      configs.s3.bucketName,
       axiosInstance,
     );
     const services = new Service(deps);
@@ -69,11 +66,3 @@ class Handler {
 }
 
 export default new Handler();
-
-// export const parseAuth = (event: APIGatewayEvent): string => {
-//   const { authorizer } = event.requestContext;
-//   if (!authorizer || !authorizer.claims || !authorizer.claims.email) {
-//     throw new ApiError(401, 'ERROR! Unauthorized!');
-//   }
-//   return authorizer.claims.email;
-// };
