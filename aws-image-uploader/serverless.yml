@@ -19,9 +19,9 @@ provider:
   environment:
     TABLE_NAME: ${self:custom.tableName}
     BUCKET_NAME: ${self:custom.bucketName}
-    PASSWORD_SALT: 3
     USER_POOL_ID: { Ref: UserPool }
-    USER_CLIENT_ID: { Ref: UserClient }
+    USER_POOL_CLIENT_ID: { Ref: UserPoolClient }
+    SECRET_HASH: 13simvcku77gl0vod4knjndbljffnt7jo4gh1l66f19evk0f3egv
   iam:
     role:
       statements:
@@ -62,7 +62,7 @@ custom:
   tableName: img-upldr-table-${self:provider.stage}
   bucketName: img-upldr-bucket-${self:provider.stage}
   userPoolName: img-upldr-user-pool-${self:provider.stage}
-  userClientName: img-upldr-user-pool-client-${self:provider.stage}
+  userPoolClientName: img-upldr-user-pool-client-${self:provider.stage}
 
 functions:
   signIn:
@@ -147,13 +147,12 @@ resources:
             MinimumLength: 6
         AutoVerifiedAttributes: ["email"]
 
-    UserClient:
+    UserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-        ClientName: ${self:custom.userClientName}
+        ClientName: ${self:custom.userPoolClientName}
         GenerateSecret: false
         UserPoolId: { Ref: UserPool }
-        AccessTokenValidity: 5
         IdTokenValidity: 5
         ExplicitAuthFlows:
           - "ADMIN_NO_SRP_AUTH"
