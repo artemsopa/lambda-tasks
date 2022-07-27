@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import { APIGatewayEvent } from 'aws-lambda';
 import axios from 'axios';
+import Boom from '@hapi/boom';
 import AuthHandler from './auth.handler';
 import BucketHandler from './bucket.handler';
 import Service, { Deps } from '../service/service';
@@ -20,9 +21,12 @@ export class Response {
 
 export const next = (error: unknown) => {
   if (error instanceof ApiError) {
+    if (error.status === 401) return Boom.unauthorized(error.message);
+    if (error.status === 400) return Boom.badRequest(error.message);
+    if (error.status === 500) return Boom.internal(error.message);
     return new Response(error.status, JSON.stringify({ message: error.message }));
   }
-  return new Response(500, JSON.stringify(error));
+  return Boom.internal('Internal server error');
 };
 
 export interface IAuthHandler {
