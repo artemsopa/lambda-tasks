@@ -9,12 +9,10 @@ class CognitoService {
     private identity: AWS.CognitoIdentityServiceProvider,
     private userPoolId: string,
     private userClientId: string,
-    private secretHash: string,
   ) {
     this.identity = identity;
     this.userPoolId = userPoolId;
     this.userClientId = userClientId;
-    this.secretHash = secretHash;
   }
 
   async initiateAuth(userName: string, password: string) {

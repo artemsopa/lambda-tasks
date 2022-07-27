@@ -53,7 +53,6 @@ class Handler {
       cognito,
       configs.cognito.userPoolId,
       configs.cognito.userClientId,
-      configs.cognito.secretHash,
       s3,
       configs.s3.bucketName,
       axiosInstance,

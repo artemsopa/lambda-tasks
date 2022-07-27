@@ -21,7 +21,6 @@ provider:
     BUCKET_NAME: ${self:custom.bucketName}
     USER_POOL_ID: { Ref: UserPool }
     USER_POOL_CLIENT_ID: { Ref: UserPoolClient }
-    SECRET_HASH: 13simvcku77gl0vod4knjndbljffnt7jo4gh1l66f19evk0f3egv
   iam:
     role:
       statements:

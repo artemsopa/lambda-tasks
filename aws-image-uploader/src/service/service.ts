@@ -43,13 +43,12 @@ export class Deps {
     cognito: AWS.CognitoIdentityServiceProvider,
     userPoolId: string,
     userClientId: string,
-    secretHash: string,
     s3: AWS.S3,
     bucketName: string,
     axios: AxiosInstance,
   ) {
     this.repos = repos;
-    this.cognito = new CognitoService(cognito, userPoolId, userClientId, secretHash);
+    this.cognito = new CognitoService(cognito, userPoolId, userClientId);
     this.s3 = new S3Service(s3, bucketName, axios);
     this.axios = axios;
   }
