@@ -41,14 +41,14 @@ class S3Service implements IS3Service {
     return this.bucket.getSignedUrl('getObject', params);
   }
 
-  createPresignedPost(PK: string, title: string, contentType: string) {
+  createPresignedPost(prefix: string, title: string, contentType: string) {
     const params = {
       Expires: 30 * 60,
       Bucket: this.bucketName,
       Conditions: [['content-length-range', 100, 10000000]],
       Fields: {
         'Content-Type': contentType,
-        key: `${PK}/images/${title}`,
+        key: `${prefix}/images/${title}`,
       },
     };
     return new Promise<AWS.S3.PresignedPost>((resolve, reject) => {

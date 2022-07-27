@@ -33,7 +33,7 @@ class BucketService implements IBucketService {
   }
 
   async deleteImage(PK: string, title: string) {
-    if (await this.imagesRepo.isImageExists(PK, title)) throw new ApiError(400, `Image with title ${title} already exists`);
+    if (!await this.imagesRepo.isImageExists(PK, title)) throw new ApiError(400, `Image with title ${title} does not exist`);
     await this.s3.deleteImage(PK, title);
     await this.imagesRepo.delete(PK, title);
   }

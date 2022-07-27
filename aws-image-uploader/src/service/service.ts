@@ -28,7 +28,7 @@ export interface ICognitoService {
 
 export interface IS3Service {
   listObjects(prefix: string): Promise<Image[]>;
-  createPresignedPost(PK: string, title: string, contentType: string): Promise<AWS.S3.PresignedPost>;
+  createPresignedPost(prefix: string, title: string, contentType: string): Promise<AWS.S3.PresignedPost>;
   uploadFileToS3(presignedPostData: AWS.S3.PresignedPost, title: string, buffer: Buffer): Promise<void>;
   deleteImage(prefix: string, title: string): Promise<void>;
 }

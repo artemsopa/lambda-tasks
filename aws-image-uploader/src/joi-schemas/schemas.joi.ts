@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 export const signInSchema = Joi.object({
   userName: Joi.string()
-    .min(6)
+    .min(4)
     .max(30)
     .lowercase()
     .required(),
