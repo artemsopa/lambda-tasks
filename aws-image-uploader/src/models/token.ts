@@ -4,7 +4,3 @@ export class Token {
     this.token = token;
   }
 }
-
-export interface JwtPlaceholder {
-    PK: string;
-}

@@ -1,19 +1,24 @@
-export class User {
-  PK: string;
-  SK: string;
+export class UserInput {
+  userName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   password: string;
-  constructor(PK: string, SK: string, password: string) {
-    this.PK = PK;
-    this.SK = SK;
+  constructor(userName: string, firstName: string, lastName: string, email: string, password: string) {
+    this.userName = userName;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
     this.password = password;
   }
 }
 
-export class UserInput {
-  email: string;
-  password: string;
-  constructor(email: string, password: string) {
-    this.email = email;
-    this.password = password;
+export class User extends UserInput {
+  PK: string;
+  SK: string;
+  constructor(PK: string, SK: string, userName: string, firstName: string, lastName: string, email: string, password: string) {
+    super(userName, firstName, lastName, email, password);
+    this.PK = PK;
+    this.SK = SK;
   }
 }
