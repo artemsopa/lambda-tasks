@@ -1,18 +1,18 @@
 import AWS from 'aws-sdk';
 import parser from 'lambda-multipart-parser';
 import { AxiosInstance } from 'axios';
-import { hash } from 'bcryptjs';
+import { Image } from '../models/image';
+import { Token } from '../models/token';
+import { UserInput } from '../models/user';
 import AuthService from './auth.service';
 import BucketService from './bucket.service';
 import Repository from '../respository/repository';
-import { Image } from '../models/image';
-import { CognitoConfigs, DynamoDBConfigs, S3Configs } from '../models/config-models';
-import { Token } from '../models/token';
-import { PasswordHasher } from '../hasher/password.hasher';
+import CognitoService from './cognito.service';
+import S3Service from './s3.service';
 
 export interface IAuthService {
   signIn(email: string, password: string): Promise<Token>;
-  signUp(email: string, password: string, confirm: string): Promise<void>;
+  signUp(user: UserInput): Promise<void>;
 }
 
 export interface IBucketService {
@@ -21,50 +21,36 @@ export interface IBucketService {
   deleteImage(PK: string, title: string): Promise<void>;
 }
 
-export class CognitoDeps extends CognitoConfigs {
-  identity: AWS.CognitoIdentityServiceProvider;
-  constructor(identity: AWS.CognitoIdentityServiceProvider, userPoolId: string, userClientId: string) {
-    super(userPoolId, userClientId);
-    this.identity = identity;
-  }
+export interface ICognitoService {
+  initiateAuth(userName: string, password: string): Promise<Token>;
+  signUp(user: UserInput): Promise<void>;
 }
 
-export class DynamoDBDeps extends DynamoDBConfigs {
-  client: AWS.DynamoDB.DocumentClient;
-  constructor(client: AWS.DynamoDB.DocumentClient, tableName: string) {
-    super(tableName);
-    this.client = client;
-  }
-}
-
-export class S3Deps extends S3Configs {
-  bucket: AWS.S3;
-  constructor(bucket: AWS.S3, bucketName: string) {
-    super(bucketName);
-    this.bucket = bucket;
-  }
+export interface IS3Service {
+  listObjects(prefix: string): Promise<Image[]>;
+  createPresignedPost(PK: string, title: string, contentType: string): Promise<AWS.S3.PresignedPost>;
+  uploadFileToS3(presignedPostData: AWS.S3.PresignedPost, title: string, buffer: Buffer): Promise<void>;
+  deleteImage(prefix: string, title: string): Promise<void>;
 }
 
 export class Deps {
-  cognito: CognitoDeps;
-  dynamodb: DynamoDBDeps;
-  s3: S3Deps;
   repos: Repository;
-  hasher: PasswordHasher;
+  cognito: ICognitoService;
+  s3: IS3Service;
   axios: AxiosInstance;
   constructor(
-    cognito: CognitoDeps,
-    dynamodb: DynamoDBDeps,
-    s3: S3Deps,
     repos: Repository,
-    hasher: PasswordHasher,
+    cognito: AWS.CognitoIdentityServiceProvider,
+    userPoolId: string,
+    userClientId: string,
+    secretHash: string,
+    s3: AWS.S3,
+    bucketName: string,
     axios: AxiosInstance,
   ) {
-    this.cognito = cognito;
-    this.dynamodb = dynamodb;
-    this.s3 = s3;
     this.repos = repos;
-    this.hasher = hasher;
+    this.cognito = new CognitoService(cognito, userPoolId, userClientId, secretHash);
+    this.s3 = new S3Service(s3, bucketName, axios);
     this.axios = axios;
   }
 }
@@ -74,7 +60,7 @@ export default class Service {
   bucket: IBucketService;
 
   constructor(deps: Deps) {
-    this.auth = new AuthService(deps.cognito, deps.repos.users, deps.hasher);
-    this.bucket = new BucketService(deps.repos.images, deps.s3, deps.axios);
+    this.auth = new AuthService(deps.cognito, deps.repos.users);
+    this.bucket = new BucketService(deps.s3, deps.repos.images);
   }
 }

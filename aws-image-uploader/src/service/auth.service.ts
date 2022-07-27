@@ -1,64 +1,24 @@
-import { CognitoDeps, IAuthService } from './service';
+import { IAuthService, ICognitoService } from './service';
 import { IUsersRepo } from '../respository/repository';
-import { Token } from '../models/token';
-import { PasswordHasher } from '../hasher/password.hasher';
+import { UserInput } from '../models/user';
 import ApiError from '../models/api-error';
 
 class AuthService implements IAuthService {
-  constructor(private cognito: CognitoDeps, private usersRepo: IUsersRepo, private hasher: PasswordHasher) {
+  constructor(private cognito: ICognitoService, private usersRepo: IUsersRepo) {
     this.cognito = cognito;
     this.usersRepo = usersRepo;
   }
 
-  async signIn(email: string, password: string) {
-    const user = await this.usersRepo.getByEmail(email);
-    if (!user) throw new ApiError(400, `User with email ${email} does not exist`);
-    // await this.hasher.compare(password, user.password);
-    // const hash = await this.hasher.hash(password);
-    const params = {
-      AuthFlow: 'ADMIN_NO_SRP_AUTH',
-      UserPoolId: this.cognito.userPoolId,
-      ClientId: this.cognito.userClientId,
-      AuthParameters: {
-        USERNAME: email,
-        PASSWORD: password,
-      },
-    };
-    const response = await this.cognito.identity.adminInitiateAuth(params).promise();
-    const token = response.AuthenticationResult?.IdToken;
-    if (!token) throw new ApiError(500, 'Cannot authorize user');
-    return new Token(token);
+  async signIn(userName: string, password: string) {
+    if (!await this.usersRepo.isUserNameExists(userName)) throw new ApiError(400, `User with username ${userName} does not exist`);
+    return await this.cognito.initiateAuth(userName, password);
   }
 
-  async signUp(email: string, password: string, confirm: string) {
-    if (password !== confirm) throw new ApiError(400, 'Passwords missmatching');
-    const user = await this.usersRepo.getByEmail(email);
-    if (user) throw new ApiError(400, `User with email ${email} already exists`);
-    const paramsEmail = {
-      UserPoolId: this.cognito.userPoolId,
-      Username: email,
-      UserAttributes: [{
-        Name: 'email',
-        Value: email,
-      },
-      {
-        Name: 'email_verified',
-        Value: 'true',
-      },
-      ],
-      MessageAction: 'SUPPRESS',
-    };
-    const response = await this.cognito.identity.adminCreateUser(paramsEmail).promise();
-    if (!response.User) throw new ApiError(500, `Cannot register user with email ${email}`);
-    // const hash = await this.hasher.hash(password);
-    const paramsPass = {
-      Password: password,
-      UserPoolId: this.cognito.userPoolId,
-      Username: email,
-      Permanent: true,
-    };
-    await this.cognito.identity.adminSetUserPassword(paramsPass).promise();
-    await this.usersRepo.create(email);
+  async signUp(user: UserInput) {
+    if (await this.usersRepo.isUserNameExists(user.userName)) throw new ApiError(400, `User with username ${user.userName} already exists`);
+    if (await this.usersRepo.isEmailExists(user.email)) throw new ApiError(400, `User with email ${user.email} already exists`);
+    await this.cognito.signUp(user);
+    await this.usersRepo.create(user);
   }
 }
 
