@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 export const signInSchema = Joi.object({
-  email: Joi.string()
+  userName: Joi.string()
     .min(6)
     .max(30)
     .lowercase()
@@ -9,11 +9,23 @@ export const signInSchema = Joi.object({
   password: Joi.string()
     .min(6)
     .max(30)
-    .lowercase()
     .required(),
 });
 
 export const signUpSchema = Joi.object({
+  userName: Joi.string()
+    .min(4)
+    .max(30)
+    .lowercase()
+    .required(),
+  firstName: Joi.string()
+    .min(2)
+    .max(30)
+    .required(),
+  lastName: Joi.string()
+    .min(2)
+    .max(30)
+    .required(),
   email: Joi.string()
     .min(6)
     .max(30)
@@ -22,7 +34,6 @@ export const signUpSchema = Joi.object({
   password: Joi.string()
     .min(6)
     .max(30)
-    .lowercase()
     .required(),
   confirm: Joi.ref('password'),
 });
