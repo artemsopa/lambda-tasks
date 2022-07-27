@@ -6,7 +6,7 @@ import { Token } from '../models/token';
 import { UserInput } from '../models/user';
 import AuthService from './auth.service';
 import BucketService from './bucket.service';
-import Repository from '../respository/repository';
+import Repository from '../repository/repository';
 import CognitoService from './cognito.service';
 import S3Service from './s3.service';
 

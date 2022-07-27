@@ -1,5 +1,5 @@
 import { IAuthService, ICognitoService } from './service';
-import { IUsersRepo } from '../respository/repository';
+import { IUsersRepo } from '../repository/repository';
 import { UserInput } from '../models/user';
 import ApiError from '../models/api-error';
 

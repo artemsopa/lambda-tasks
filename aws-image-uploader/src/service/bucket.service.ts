@@ -2,7 +2,7 @@ import parser from 'lambda-multipart-parser';
 import mime from 'mime';
 import { IBucketService, IS3Service } from './service';
 import { Image } from '../models/image';
-import { IImagesRepo } from '../respository/repository';
+import { IImagesRepo } from '../repository/repository';
 import ApiError from '../models/api-error';
 
 class BucketService implements IBucketService {
