@@ -7,7 +7,7 @@ export const initConfigs = () => {
   } = process.env;
 
   if (!USER_POOL_ID || !USER_POOL_CLIENT_ID || !TABLE_NAME || !BUCKET_NAME) {
-    throw new Error('ERROR! Invalid configuration!');
+    throw new Error('ERROR! Invalid configuration');
   }
 
   return {
