@@ -1,5 +1,4 @@
 import AWS from 'aws-sdk';
-import crypto from 'crypto';
 import ApiError from '../models/api-error';
 import { Token } from '../models/token';
 import { UserInput } from '../models/user';
