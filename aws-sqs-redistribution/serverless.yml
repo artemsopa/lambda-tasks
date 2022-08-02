@@ -1,0 +1,55 @@
+org: artemsopa
+app: aws-sqs-redistribution
+service: aws-sqs-redistribution
+frameworkVersion: "3"
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-central-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    QUEUE_NAME: ${self:custom.queueName}
+    ACCOUNT_ID: ${self:custom.accountId}
+    REGION: ${self:provider.region}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sqs:SendMessage"
+        - "sqs:GetQueueUrl"
+      Resource: "arn:aws:sqs:${self:provider.region}:${self:custom.accountId}:MyQueue"
+    - Effect: "Allow"
+      Action:
+        - "sqs:ListQueues"
+      Resource: "arn:aws:sqs:${self:provider.region}:${self:custom.accountId}:*"
+
+custom:
+  queueName: aws-sqs-redistribution-${self:provider.stage}
+  accountId: 933786573228
+
+functions:
+  sender:
+    handler: ./src/sender.sender
+    events:
+      - http:
+          path: v1/sender
+          method: post
+  receiver:
+    handler: ./src/receiver.receiver
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - MyQueue
+              - Arn
+
+resources:
+  Resources:
+    MyQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:custom.queueName}
