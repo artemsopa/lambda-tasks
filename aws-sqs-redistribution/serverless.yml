@@ -21,7 +21,7 @@ provider:
       Action:
         - "sqs:SendMessage"
         - "sqs:GetQueueUrl"
-      Resource: "arn:aws:sqs:${self:provider.region}:${self:custom.accountId}:MyQueue"
+      Resource: "arn:aws:sqs:${self:provider.region}:${self:custom.accountId}:${self:custom.queueName}"
     - Effect: "Allow"
       Action:
         - "sqs:ListQueues"
