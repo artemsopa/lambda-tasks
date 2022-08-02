@@ -18,11 +18,7 @@ const sender: APIGatewayProxyHandler = async (event) => {
     };
   }
 
-  const region = configs.REGION;
-  const accountId = configs.ACCOUNT_ID;
-  const queueName = configs.QUEUE_NAME;
-
-  const queueUrl = `https://sqs.${region}.amazonaws.com/${accountId}/${queueName}`;
+  const queueUrl = `https://sqs.${configs.REGION}.amazonaws.com/${configs.ACCOUNT_ID}/${configs.QUEUE_NAME}`;
 
   try {
     await sqs.sendMessage({
