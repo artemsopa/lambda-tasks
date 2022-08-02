@@ -33,13 +33,13 @@ custom:
 
 functions:
   sender:
-    handler: ./src/sender.sender
+    handler: ./src/index.sender
     events:
       - http:
           path: v1/sender
           method: post
   receiver:
-    handler: ./src/receiver.receiver
+    handler: ./src/index.receiver
     events:
       - sqs:
           arn:
