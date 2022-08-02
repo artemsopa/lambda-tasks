@@ -24,7 +24,6 @@
     "webpack": "^5.74.0"
   },
   "dependencies": {
-    "@middy/core": "^3.1.0",
     "dotenv": "^16.0.1"
   }
 }
