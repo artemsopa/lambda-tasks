@@ -23,5 +23,6 @@ module.exports = {
     'import/extensions': 0,
     'no-restricted-syntax': 0,
     'max-len': 0,
+    'no-await-in-loop': 0,
   },
 };

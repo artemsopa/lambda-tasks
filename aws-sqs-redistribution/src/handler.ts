@@ -1,21 +1,26 @@
 import AWS from 'aws-sdk';
 import { APIGatewayProxyHandler, SQSHandler } from 'aws-lambda';
+// import mysql from 'mysql2';
 import initConfigs from './config';
 
 const configs = initConfigs();
 const sqs = new AWS.SQS();
+// const db = mysql.createConnection({
+//   host: configs.db.DB_HOST,
+//   port: configs.db.DB_PORT,
+//   user: configs.db.DB_USER,
+//   database: configs.db.DB_NAME,
+//   password: configs.db.DB_PASSWORD,
+// }).promise();
 
 const sender: APIGatewayProxyHandler = async (event) => {
-  console.log(configs);
   let statusCode = 200;
   let message = 'Message placed in the Queue!';
 
   if (!event.body) {
     return {
       statusCode: 400,
-      body: JSON.stringify({
-        message: 'Body is not found',
-      }),
+      body: JSON.stringify({ message: 'Body is not found' }),
     };
   }
 
@@ -38,21 +43,17 @@ const sender: APIGatewayProxyHandler = async (event) => {
     message = 'Cannot place message in the Queue!';
   }
 
-  return {
-    statusCode,
-    body: JSON.stringify({
-      message,
-    }),
-  };
+  return { statusCode, body: JSON.stringify({ message }) };
 };
 
 const receiver: SQSHandler = async (event) => {
+  // const sql = 'INSERT INTO tokens (token) VALUES (?)';
   try {
     for (const record of event.Records) {
       const { messageAttributes } = record;
       console.log('Message Attributtes -->  ', messageAttributes.AttributeNameHere.stringValue);
       console.log('Message Body -->  ', record.body);
-      // Do something
+      // await db.query(sql, JSON.parse(record.body).token);
     }
   } catch (error) {
     console.log(error);

@@ -32,6 +32,13 @@ provider:
       Action:
         - "sqs:ListQueues"
       Resource: "arn:aws:sqs:${self:provider.region}:${self:provider.environment.ACCOUNT_ID}:*"
+      - Effect: "Allow"
+      Action:
+        - ec2:CreateNetworkInterface
+        - ec2:DescribeNetworkInterfaces
+        - ec2:DeleteNetworkInterface
+      Resource:
+        - "*"
 
 custom:
   queueName: aws-sqs-redistribution-${self:provider.stage}
@@ -43,6 +50,7 @@ functions:
       - http:
           path: v1/sender
           method: post
+          cors: true
   receiver:
     handler: ./src/handler.receiver
     events:
@@ -51,6 +59,13 @@ functions:
             Fn::GetAtt:
               - MyQueue
               - Arn
+    vpc:
+      securityGroupIds:
+        - sg-0fe96f314854bde70
+      subnetIds:
+        - subnet-0f9af9f93b661a6ad
+        - subnet-0315b540cb1a0f6a0
+        - subnet-0f877550548ce2fa1
 
 resources:
   Resources:
