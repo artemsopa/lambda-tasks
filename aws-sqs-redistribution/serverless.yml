@@ -2,6 +2,7 @@ org: artemsopa
 app: aws-sqs-redistribution
 service: aws-sqs-redistribution
 frameworkVersion: "3"
+useDotenv: true
 
 plugins:
   - serverless-webpack
@@ -14,32 +15,36 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     QUEUE_NAME: ${self:custom.queueName}
-    ACCOUNT_ID: ${self:custom.accountId}
+    ACCOUNT_ID: ${env:ACCOUNT_ID}
     REGION: ${self:provider.region}
+    DB_HOST: ${env:RDS_DB_HOST}
+    DB_PORT: ${env:RDS_DB_PORT}
+    DB_USER: ${env:RDS_DB_USER}
+    DB_PASSWORD: ${env:RDS_DB_PASSWORD}
+    DB_NAME: ${env:RDS_DB_NAME}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
         - "sqs:SendMessage"
         - "sqs:GetQueueUrl"
-      Resource: "arn:aws:sqs:${self:provider.region}:${self:custom.accountId}:${self:custom.queueName}"
+      Resource: "arn:aws:sqs:${self:provider.region}:${self:provider.environment.ACCOUNT_ID}:${self:custom.queueName}"
     - Effect: "Allow"
       Action:
         - "sqs:ListQueues"
-      Resource: "arn:aws:sqs:${self:provider.region}:${self:custom.accountId}:*"
+      Resource: "arn:aws:sqs:${self:provider.region}:${self:provider.environment.ACCOUNT_ID}:*"
 
 custom:
   queueName: aws-sqs-redistribution-${self:provider.stage}
-  accountId: 933786573228
 
 functions:
   sender:
-    handler: ./src/index.sender
+    handler: ./src/handler.sender
     events:
       - http:
           path: v1/sender
           method: post
   receiver:
-    handler: ./src/index.receiver
+    handler: ./src/handler.receiver
     events:
       - sqs:
           arn:

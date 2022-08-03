@@ -1,11 +1,12 @@
 import AWS from 'aws-sdk';
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyHandler, SQSHandler } from 'aws-lambda';
 import initConfigs from './config';
 
 const configs = initConfigs();
 const sqs = new AWS.SQS();
 
 const sender: APIGatewayProxyHandler = async (event) => {
+  console.log(configs);
   let statusCode = 200;
   let message = 'Message placed in the Queue!';
 
@@ -18,7 +19,7 @@ const sender: APIGatewayProxyHandler = async (event) => {
     };
   }
 
-  const queueUrl = `https://sqs.${configs.REGION}.amazonaws.com/${configs.ACCOUNT_ID}/${configs.QUEUE_NAME}`;
+  const queueUrl = `https://sqs.${configs.queue.REGION}.amazonaws.com/${configs.queue.ACCOUNT_ID}/${configs.queue.QUEUE_NAME}`;
 
   try {
     await sqs.sendMessage({
@@ -45,4 +46,20 @@ const sender: APIGatewayProxyHandler = async (event) => {
   };
 };
 
-export default sender;
+const receiver: SQSHandler = async (event) => {
+  try {
+    for (const record of event.Records) {
+      const { messageAttributes } = record;
+      console.log('Message Attributtes -->  ', messageAttributes.AttributeNameHere.stringValue);
+      console.log('Message Body -->  ', record.body);
+      // Do something
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export {
+  sender,
+  receiver,
+};
