@@ -21,7 +21,6 @@ provider:
     DB_PORT: ${env:RDS_DB_PORT}
     DB_USER: ${env:RDS_DB_USER}
     DB_PASSWORD: ${env:RDS_DB_PASSWORD}
-    DB_NAME: ${env:RDS_DB_NAME}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -32,7 +31,7 @@ provider:
       Action:
         - "sqs:ListQueues"
       Resource: "arn:aws:sqs:${self:provider.region}:${self:provider.environment.ACCOUNT_ID}:*"
-      - Effect: "Allow"
+    - Effect: "Allow"
       Action:
         - ec2:CreateNetworkInterface
         - ec2:DescribeNetworkInterfaces

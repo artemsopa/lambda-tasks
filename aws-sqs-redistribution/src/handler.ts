@@ -1,17 +1,16 @@
 import AWS from 'aws-sdk';
 import { APIGatewayProxyHandler, SQSHandler } from 'aws-lambda';
-// import mysql from 'mysql2';
+import mysql from 'mysql2';
 import initConfigs from './config';
 
 const configs = initConfigs();
 const sqs = new AWS.SQS();
-// const db = mysql.createConnection({
-//   host: configs.db.DB_HOST,
-//   port: configs.db.DB_PORT,
-//   user: configs.db.DB_USER,
-//   database: configs.db.DB_NAME,
-//   password: configs.db.DB_PASSWORD,
-// }).promise();
+const db = mysql.createConnection({
+  host: configs.db.DB_HOST,
+  port: configs.db.DB_PORT,
+  user: configs.db.DB_USER,
+  password: configs.db.DB_PASSWORD,
+}).promise();
 
 const sender: APIGatewayProxyHandler = async (event) => {
   let statusCode = 200;
@@ -47,13 +46,13 @@ const sender: APIGatewayProxyHandler = async (event) => {
 };
 
 const receiver: SQSHandler = async (event) => {
-  // const sql = 'INSERT INTO tokens (token) VALUES (?)';
+  const sql = 'INSERT INTO tokens (token) VALUES (?)';
   try {
     for (const record of event.Records) {
       const { messageAttributes } = record;
       console.log('Message Attributtes -->  ', messageAttributes.AttributeNameHere.stringValue);
       console.log('Message Body -->  ', record.body);
-      // await db.query(sql, JSON.parse(record.body).token);
+      await db.query(sql, JSON.parse(record.body).token);
     }
   } catch (error) {
     console.log(error);
